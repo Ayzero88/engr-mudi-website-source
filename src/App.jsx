@@ -23,11 +23,13 @@ export default function App() {
   const [route, setRoute] = useState(getRoute())
   const [content, setContent] = useState(seedData)
   const [source, setSource] = useState('seed')
+  const [loaded, setLoaded] = useState(false)
 
   const loadContent = useCallback(async () => {
     if (!supabase) {
       setContent(seedData)
       setSource('seed')
+      setLoaded(true)
       return
     }
     try {
@@ -61,6 +63,8 @@ export default function App() {
     } catch {
       setContent(seedData)
       setSource('seed')
+    } finally {
+      setLoaded(true)
     }
   }, [])
 
@@ -79,7 +83,7 @@ export default function App() {
 
   return (
     <>
-      {source === 'seed' && (
+      {loaded && source === 'seed' && (
         <p className="source-note">
           Showing starter content — connect Supabase (see README.md) for live editing.
         </p>
