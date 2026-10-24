@@ -1,0 +1,91 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #0b1220;
+  color: #e2e8f0;
+  line-height: 1.6;
+}
+a { color: #fbbf24; }
+.page { max-width: 1060px; margin: 0 auto; padding: 0 20px 40px; }
+
+.header { border-bottom: 1px solid #1e293b; }
+.header-inner {
+  max-width: 1060px; margin: 0 auto; padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #fff; }
+.logo { height: 40px; width: auto; }
+.brand-name { font-weight: bold; font-size: 20px; }
+.nav { display: flex; gap: 16px; flex-wrap: wrap; }
+.nav a { color: #cbd5e1; text-decoration: none; }
+.nav a:hover { color: #fff; }
+.nav .manage-link {
+  color: #0b1220; background: #fbbf24; padding: 2px 12px; border-radius: 999px; font-weight: bold;
+}
+
+.hero { padding: 56px 0 24px; }
+.hero h1 { font-size: 52px; line-height: 1.1; margin: 0 0 8px; color: #fff; }
+.brand-tag {
+  display: inline-block; background: #fbbf24; color: #0b1220;
+  font-weight: bold; padding: 4px 14px; border-radius: 999px; margin: 0 0 12px;
+}
+.shorts-link { font-size: 18px; }
+.hero-sub { color: #94a3b8; }
+
+.section { padding: 32px 0; border-top: 1px solid #1e293b; }
+.section h2 { color: #fff; font-size: 28px; margin-top: 0; }
+.stack { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { background: #1e293b; padding: 6px 14px; border-radius: 999px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.card { background: #111827; border: 1px solid #1e293b; border-radius: 12px; padding: 20px; }
+.card h3 { margin-top: 0; color: #fff; }
+.tagline { color: #fbbf24; font-style: italic; }
+.project-img, .photo img { width: 100%; border-radius: 8px; display: block; }
+.photo { margin: 0; }
+.photo figcaption { color: #94a3b8; font-size: 14px; margin-top: 8px; }
+.price { font-size: 22px; font-weight: bold; color: #fff; }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: bold; }
+.badge.live { background: #065f46; color: #a7f3d0; }
+.badge.soon { background: #78350f; color: #fde68a; }
+.buy-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn {
+  display: inline-block; background: #fbbf24; color: #0b1220; font-weight: bold;
+  padding: 8px 16px; border-radius: 8px; text-decoration: none; border: none; cursor: pointer;
+}
+.btn.secondary { background: transparent; color: #fbbf24; border: 1px solid #fbbf24; }
+.footer { border-top: 1px solid #1e293b; padding-top: 20px; color: #94a3b8; }
+.source-note {
+  background: #78350f; color: #fde68a; margin: 0; padding: 10px 20px; text-align: center;
+}
+
+/* Admin */
+.admin { max-width: 860px; margin: 0 auto; padding: 24px 20px 60px; }
+.admin-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.admin h1 { color: #fff; }
+.panel-section { background: #111827; border: 1px solid #1e293b; border-radius: 12px; padding: 20px; margin: 20px 0; }
+.panel-section h2 { margin-top: 0; color: #fff; }
+.panel-section h3 { color: #fff; }
+.field { display: block; margin: 12px 0; }
+.field > span { display: block; font-size: 14px; color: #94a3b8; margin-bottom: 4px; }
+.field input[type="text"], .field input[type="email"], .field input[type="password"],
+.field textarea, .field select, .row input[type="text"] {
+  width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid #334155;
+  background: #0b1220; color: #e2e8f0; font-size: 15px;
+}
+.field textarea { resize: vertical; }
+.row { display: flex; gap: 8px; margin: 8px 0; align-items: center; }
+.row input[type="text"] { flex: 1; }
+.row button, .card-edit button { padding: 7px 12px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; cursor: pointer; }
+.card-edit { border: 1px solid #1e293b; border-radius: 8px; padding: 14px; margin: 12px 0; }
+.thumb { max-width: 240px; display: block; margin: 8px 0; border-radius: 8px; }
+.saved { background: #065f46; color: #a7f3d0; padding: 10px 14px; border-radius: 8px; }
+.error { color: #fca5a5; }
+.hint { color: #94a3b8; }
+.login-box { max-width: 480px; }
+.login-box .btn { margin-top: 8px; }
+
+@media (max-width: 600px) {
+  .hero h1 { font-size: 34px; }
+  .row { flex-wrap: wrap; }
+}
