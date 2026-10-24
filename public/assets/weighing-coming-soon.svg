@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600">
+  <rect width="960" height="600" fill="#0b1220"/>
+  <rect x="24" y="24" width="912" height="552" fill="none" stroke="#1e293b" stroke-width="2"/>
+  <!-- scale glyph -->
+  <g stroke="#34d399" stroke-width="10" stroke-linecap="round" fill="none">
+    <line x1="480" y1="120" x2="480" y2="210"/>
+    <line x1="380" y1="210" x2="580" y2="210"/>
+    <line x1="380" y1="210" x2="380" y2="270"/>
+    <line x1="580" y1="210" x2="580" y2="270"/>
+    <line x1="330" y1="270" x2="630" y2="270"/>
+  </g>
+  <rect x="330" y="290" width="300" height="90" rx="12" fill="#111827" stroke="#1e293b" stroke-width="2"/>
+  <text x="480" y="350" font-family="monospace" font-size="44" fill="#34d399" text-anchor="middle">0.00 kg</text>
+  <text x="480" y="450" font-family="Arial, sans-serif" font-size="52" font-weight="bold" letter-spacing="4" fill="#fbbf24" text-anchor="middle">COMING SOON</text>
+  <text x="480" y="500" font-family="Arial, sans-serif" font-size="24" letter-spacing="2" fill="#94a3b8" text-anchor="middle">BEFORE DECEMBER 2026</text>
+</svg>
