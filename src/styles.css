@@ -1,7 +1,7 @@
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
   background: #0b1220;
   color: #e2e8f0;
   line-height: 1.6;
@@ -25,7 +25,7 @@ a { color: #fbbf24; }
 }
 
 .hero { padding: 56px 0 24px; }
-.hero h1 { font-size: 52px; line-height: 1.1; margin: 0 0 8px; color: #fff; }
+.hero h1 { font-size: 52px; line-height: 1.1; margin: 0 0 8px; color: #fff; letter-spacing: -0.02em; font-weight: 700; }
 .brand-tag {
   display: inline-block; background: #fbbf24; color: #0b1220;
   font-weight: bold; padding: 4px 14px; border-radius: 999px; margin: 0 0 12px;
@@ -34,14 +34,15 @@ a { color: #fbbf24; }
 .hero-sub { color: #94a3b8; }
 
 .section { padding: 32px 0; border-top: 1px solid #1e293b; }
-.section h2 { color: #fff; font-size: 28px; margin-top: 0; }
+.section h2 { color: #fff; font-size: 28px; margin-top: 0; letter-spacing: -0.01em; font-weight: 700; }
 .stack { display: flex; flex-wrap: wrap; gap: 10px; }
 .chip { background: #1e293b; padding: 6px 14px; border-radius: 999px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 .card { background: #111827; border: 1px solid #1e293b; border-radius: 12px; padding: 20px; }
-.card h3 { margin-top: 0; color: #fff; }
+.card h3 { margin-top: 0; color: #fff; letter-spacing: -0.01em; font-weight: 600; }
 .tagline { color: #fbbf24; font-style: italic; }
-.project-img, .photo img { width: 100%; border-radius: 8px; display: block; }
+.project-img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background: #0b1220; border-radius: 8px; display: block; }
+.photo img { width: 100%; border-radius: 8px; display: block; }
 .photo { margin: 0; }
 .photo figcaption { color: #94a3b8; font-size: 14px; margin-top: 8px; }
 .price { font-size: 22px; font-weight: bold; color: #fff; }
