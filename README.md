@@ -73,7 +73,7 @@ website-standalone/
    two `storage.objects` policy statements from schema.sql.)
 3. Open a second new query, paste `supabase/seed.sql`, and click **Run**.
 4. Check **Table Editor**: you should see the hero row, 15 stack items,
-   3 projects, coaching text + 2 photos, 6 books, 1 service, 4 social links,
+   3 projects, coaching text + 7 topics + 2 photos, 6 books, 1 service, 4 social links,
    and the hire text.
 
 ### 3. Create the admin user (only you can sign in)
