@@ -40,6 +40,7 @@ create table if not exists projects (
 create table if not exists coaching (
   id int primary key default 1,
   body text not null,
+  note text not null default '',
   constraint coaching_single_row check (id = 1)
 );
 
@@ -47,6 +48,12 @@ create table if not exists coaching_photos (
   id uuid primary key default gen_random_uuid(),
   image_url text not null,
   caption text not null default '',
+  position int not null default 0
+);
+
+create table if not exists coaching_topics (
+  id uuid primary key default gen_random_uuid(),
+  label text not null,
   position int not null default 0
 );
 
@@ -89,6 +96,7 @@ alter table stack_items enable row level security;
 alter table projects enable row level security;
 alter table coaching enable row level security;
 alter table coaching_photos enable row level security;
+alter table coaching_topics enable row level security;
 alter table books enable row level security;
 alter table services enable row level security;
 alter table social_links enable row level security;
@@ -99,7 +107,7 @@ do $$
 declare t text;
 begin
   for t in select unnest(array[
-    'hero','stack_items','projects','coaching','coaching_photos',
+    'hero','stack_items','projects','coaching','coaching_photos','coaching_topics',
     'books','services','social_links','hire_text'
   ]) loop
     execute format(
@@ -114,7 +122,7 @@ do $$
 declare t text;
 begin
   for t in select unnest(array[
-    'hero','stack_items','projects','coaching','coaching_photos',
+    'hero','stack_items','projects','coaching','coaching_photos','coaching_topics',
     'books','services','social_links','hire_text'
   ]) loop
     execute format(

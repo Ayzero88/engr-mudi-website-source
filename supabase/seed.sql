@@ -58,17 +58,25 @@ insert into projects (title, description, tagline, status, image_url, position) 
   );
 
 -- Coaching
-insert into coaching (id, body)
+insert into coaching (id, body, note)
 values (
   1,
-  'I coach people online or in person through my company, Ayzeroxa Technologies.'
+  'I coach people online or in person through my company, Ayzeroxa Technologies.',
+  'Currently training Batch 2026 Batch B students in Front End Development.'
 )
-on conflict (id) do update set body = excluded.body;
+on conflict (id) do update set body = excluded.body, note = excluded.note;
 
 delete from coaching_photos;
 insert into coaching_photos (image_url, caption, position) values
   ('/assets/training-1.png', 'Training session', 1),
   ('/assets/training-2.png', 'Classroom training session', 2);
+
+-- Coaching topics (7 subjects, in order)
+delete from coaching_topics;
+insert into coaching_topics (label, position) values
+  ('Front End Development', 1), ('Backend Development', 2), ('Fullstack Development', 3),
+  ('How to Use AI Agents', 4), ('Flutter Development for Mobile', 5),
+  ('Machine Learning', 6), ('Mathematics', 7);
 
 -- Books (heading is plain "Books" — no "cheat" wording in heading/subtitle)
 delete from books;
