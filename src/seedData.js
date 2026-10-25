@@ -46,7 +46,13 @@ export const seedData = {
   ],
   coaching: {
     body: 'I coach people online or in person through my company, Ayzeroxa Technologies.',
+    note: 'Currently training Batch 2026 Batch B students in Front End Development.',
   },
+  coachingTopics: [
+    'Front End Development', 'Backend Development', 'Fullstack Development',
+    'How to Use AI Agents', 'Flutter Development for Mobile',
+    'Machine Learning', 'Mathematics',
+  ].map((label, i) => ({ id: `seed-topic-${i}`, label })),
   coachingPhotos: [
     { id: 'seed-photo-1', image_url: '/assets/training-1.png', caption: 'Training session' },
     { id: 'seed-photo-2', image_url: '/assets/training-2.png', caption: 'Classroom training session' },

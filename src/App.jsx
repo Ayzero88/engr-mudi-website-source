@@ -56,6 +56,7 @@ export default function App() {
         supabase.from('projects').select('*').order('position'),
         supabase.from('coaching').select('*').eq('id', 1).single(),
         supabase.from('coaching_photos').select('*').order('position'),
+        supabase.from('coaching_topics').select('*').order('position'),
         supabase.from('books').select('*').order('position'),
         supabase.from('services').select('*').order('position'),
         supabase.from('social_links').select('*').order('position'),
@@ -63,7 +64,7 @@ export default function App() {
       ]
       const results = await Promise.all(queries)
       if (results.some((r) => r.error)) throw new Error('Supabase fetch failed')
-      const [hero, stack, projects, coaching, photos, books, services, links, hire] =
+      const [hero, stack, projects, coaching, photos, topics, books, services, links, hire] =
         results.map((r) => r.data)
       setContent({
         hero: pick(hero, seedData.hero),
@@ -71,6 +72,7 @@ export default function App() {
         projects: pick(projects, seedData.projects),
         coaching: pick(coaching, seedData.coaching),
         coachingPhotos: pick(photos, seedData.coachingPhotos),
+        coachingTopics: pick(topics, seedData.coachingTopics),
         books: pick(books, seedData.books),
         services: pick(services, seedData.services),
         socialLinks: pick(links, seedData.socialLinks),

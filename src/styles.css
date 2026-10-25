@@ -44,7 +44,12 @@ a { color: #fbbf24; }
 .shorts-link { font-size: 18px; }
 .hero-sub { color: #94a3b8; }
 
-.section { padding: 32px 0; border-top: 1px solid #1e293b; }
+.section {
+  margin-top: 32px; padding: 32px;
+  background: linear-gradient(180deg, #111c30 0%, #0c1424 100%);
+  border: 1px solid #1e293b; border-radius: 18px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+}
 .section h2 { color: #fff; font-size: 28px; margin-top: 0; letter-spacing: -0.01em; font-weight: 700; }
 .stack { display: flex; flex-wrap: wrap; gap: 10px; }
 .chip { background: #1e293b; padding: 6px 14px; border-radius: 999px; }
@@ -118,7 +123,7 @@ a { color: #fbbf24; }
 .page.light .hero h1 { color: #0f172a; }
 .page.light .hero-sub { color: #475569; }
 .page.light a { color: #b45309; }
-.page.light .section { border-top-color: #e2e8f0; }
+.page.light .section { background: #ffffff; border-color: #e2e8f0; box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08); }
 .page.light .section h2 { color: #0f172a; }
 .page.light .chip { background: #e2e8f0; color: #0f172a; }
 .page.light .card { background: #ffffff; border-color: #e2e8f0; }
@@ -131,3 +136,15 @@ a { color: #fbbf24; }
 .page.light .footer { border-top-color: #e2e8f0; color: #64748b; }
 .page.light .theme-toggle { border-color: #cbd5e1; color: #334155; }
 .page.light .theme-toggle:hover { border-color: #b45309; }
+
+/* Contact heading, same size as the section titles */
+.contact-title { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; color: #fff; margin: 32px 0 12px; }
+.page.light .contact-title { color: #0f172a; }
+
+/* Highlighted note box (e.g. current training batch) */
+.note-box { background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.45); color: #fde68a; padding: 14px 18px; border-radius: 12px; }
+.page.light .note-box { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+
+@media (max-width: 600px) {
+  .section { padding: 24px 20px; }
+}

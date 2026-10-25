@@ -106,7 +106,7 @@ export default function AdminPanel() {
     // Single-row tables (hero, coaching, hire_text) have no position column,
     // so they must not be ordered by it — only the list tables get an order.
     const singleTables = ['hero', 'coaching', 'hire_text']
-    const listTables = ['stack_items', 'projects', 'coaching_photos', 'books', 'services', 'social_links']
+    const listTables = ['stack_items', 'projects', 'coaching_photos', 'coaching_topics', 'books', 'services', 'social_links']
     const results = await Promise.all([
       ...singleTables.map((t) => supabase.from(t).select('*')),
       ...listTables.map((t) => supabase.from(t).select('*').order('position', { ascending: true })),
@@ -116,13 +116,14 @@ export default function AdminPanel() {
       setLoadError(failed.error.message)
       return
     }
-    const [hero, coaching, hire, stack, projects, photos, books, services, links] = results.map((r) => r.data)
+    const [hero, coaching, hire, stack, projects, photos, topics, books, services, links] = results.map((r) => r.data)
     setData({
       hero: hero[0] || {},
       stack,
       projects,
       coaching: coaching[0] || {},
       photos,
+      topics,
       books,
       services,
       links,
@@ -337,7 +338,19 @@ export default function AdminPanel() {
       <section className="panel-section">
         <h2>Coaching</h2>
         <TextField label="Coaching text" textarea value={data.coaching.body} onChange={(v) => setData((d) => ({ ...d, coaching: { ...d.coaching, body: v } }))} />
+        <TextField label="Current training note (highlighted box — leave blank to hide it)" textarea value={data.coaching.note} onChange={(v) => setData((d) => ({ ...d, coaching: { ...d.coaching, note: v } }))} />
         <button className="btn" onClick={() => saveSingle('coaching', data.coaching).catch((e) => alert(e.message))}>Save coaching text</button>
+        <h3>What I coach</h3>
+        {data.topics.map((row, i) => (
+          <div className="row" key={row.id}>
+            <input type="text" value={row.label} onChange={(e) => updateList('topics', row.id, { label: e.target.value })} />
+            <button onClick={() => saveRow('coaching_topics', row).catch((e) => alert(e.message))}>Save</button>
+            <button onClick={() => reorder('coaching_topics', 'topics', i, -1)}>↑</button>
+            <button onClick={() => reorder('coaching_topics', 'topics', i, 1)}>↓</button>
+            <button onClick={() => deleteRow('coaching_topics', row.id, 'topics')}>Delete</button>
+          </div>
+        ))}
+        <button className="btn secondary" onClick={() => addRow('topics', { label: '' })}>+ Add topic</button>
         <h3>Photos</h3>
         {data.photos.map((row, i) => (
           <div className="card-edit" key={row.id}>

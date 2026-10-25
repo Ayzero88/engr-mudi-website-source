@@ -1,7 +1,7 @@
 import React from 'react'
 
 export default function PublicSite({ content, theme, onToggleTheme }) {
-  const { hero, stack, projects, coaching, coachingPhotos, books, services, socialLinks, hire } = content
+  const { hero, stack, projects, coaching, coachingTopics, coachingPhotos, books, services, socialLinks, hire } = content
 
   return (
     <div className={theme === 'light' ? 'page light' : 'page'}>
@@ -64,6 +64,14 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
         <section className="section" id="coaching">
           <h2>Coaching</h2>
           <p>{coaching.body}</p>
+          <h3>What I coach</h3>
+          <div className="stack">
+            {coachingTopics.map((t) => (
+              <span className="chip" key={t.id}>{t.label}</span>
+            ))}
+          </div>
+          <p>You can also learn any software language on my stack.</p>
+          {coaching.note && <p className="note-box">{coaching.note}</p>}
           <div className="grid">
             {coachingPhotos.map((ph) => (
               <figure className="photo" key={ph.id}>
@@ -107,7 +115,7 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
               <li key={s.id}>{s.label}</li>
             ))}
           </ul>
-          <h3>Contact</h3>
+          <h3 className="contact-title">Contact</h3>
           <p className="buy-row">
             {socialLinks.map((l) => (
               <a className="btn secondary" key={l.id} href={l.url} target="_blank" rel="noreferrer">{l.label}</a>
