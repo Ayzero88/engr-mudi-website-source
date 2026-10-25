@@ -2,9 +2,20 @@
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
-  background: #0b1220;
+  background-color: #0b1220;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(251, 191, 36, 0.08), transparent 60%),
+    linear-gradient(180deg, #101a2e 0%, #0b1220 45%, #0d1424 100%);
+  background-attachment: fixed;
   color: #e2e8f0;
   line-height: 1.6;
+}
+body.light-theme {
+  background-color: #f8fafc;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(251, 191, 36, 0.16), transparent 60%),
+    linear-gradient(180deg, #ffffff 0%, #f1f5f9 50%, #e8edf3 100%);
+  color: #0f172a;
 }
 a { color: #fbbf24; }
 .page { max-width: 1060px; margin: 0 auto; padding: 0 20px 40px; }
@@ -90,3 +101,33 @@ a { color: #fbbf24; }
   .hero h1 { font-size: 34px; }
   .row { flex-wrap: wrap; }
 }
+
+/* Theme toggle */
+.theme-toggle {
+  background: transparent; border: 1px solid #334155; color: inherit;
+  padding: 4px 12px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 14px;
+}
+.theme-toggle:hover { border-color: #fbbf24; }
+
+/* Light theme */
+.page.light { color: #0f172a; }
+.page.light .header { border-bottom-color: #e2e8f0; }
+.page.light .brand { color: #0f172a; }
+.page.light .nav a { color: #334155; }
+.page.light .nav a:hover { color: #0f172a; }
+.page.light .hero h1 { color: #0f172a; }
+.page.light .hero-sub { color: #475569; }
+.page.light a { color: #b45309; }
+.page.light .section { border-top-color: #e2e8f0; }
+.page.light .section h2 { color: #0f172a; }
+.page.light .chip { background: #e2e8f0; color: #0f172a; }
+.page.light .card { background: #ffffff; border-color: #e2e8f0; }
+.page.light .card h3 { color: #0f172a; }
+.page.light .tagline { color: #b45309; }
+.page.light .price { color: #0f172a; }
+.page.light .btn { color: #0b1220; }
+.page.light .btn.secondary { color: #b45309; border-color: #b45309; }
+.page.light .photo figcaption { color: #64748b; }
+.page.light .footer { border-top-color: #e2e8f0; color: #64748b; }
+.page.light .theme-toggle { border-color: #cbd5e1; color: #334155; }
+.page.light .theme-toggle:hover { border-color: #b45309; }

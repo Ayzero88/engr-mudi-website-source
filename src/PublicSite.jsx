@@ -1,10 +1,10 @@
 import React from 'react'
 
-export default function PublicSite({ content }) {
+export default function PublicSite({ content, theme, onToggleTheme }) {
   const { hero, stack, projects, coaching, coachingPhotos, books, services, socialLinks, hire } = content
 
   return (
-    <div className="page">
+    <div className={theme === 'light' ? 'page light' : 'page'}>
       <header className="header">
         <div className="header-inner">
           <a className="brand" href="#/">
@@ -16,6 +16,9 @@ export default function PublicSite({ content }) {
             <a href="#coaching">Coaching</a>
             <a href="#books">Books</a>
             <a href="#hire">Hire me</a>
+            <button type="button" className="theme-toggle" onClick={onToggleTheme}>
+              {theme === 'light' ? '🌙 Dark mode' : '☀️ Light mode'}
+            </button>
           </nav>
         </div>
       </header>

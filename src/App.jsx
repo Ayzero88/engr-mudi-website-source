@@ -24,6 +24,23 @@ export default function App() {
   const [content, setContent] = useState(seedData)
   const [source, setSource] = useState('seed')
   const [loaded, setLoaded] = useState(false)
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem('engr-mudi-theme') || 'dark'
+    } catch {
+      return 'dark'
+    }
+  })
+
+  const toggleTheme = () => {
+    setTheme((t) => {
+      const next = t === 'dark' ? 'light' : 'dark'
+      try {
+        localStorage.setItem('engr-mudi-theme', next)
+      } catch {}
+      return next
+    })
+  }
 
   const loadContent = useCallback(async () => {
     if (!supabase) {
@@ -68,6 +85,15 @@ export default function App() {
     }
   }, [])
 
+  // Light theme only affects the public site; the admin panel stays dark.
+  useEffect(() => {
+    if (route === 'public') {
+      document.body.classList.toggle('light-theme', theme === 'light')
+    } else {
+      document.body.classList.remove('light-theme')
+    }
+  }, [theme, route])
+
   useEffect(() => {
     const onHash = () => setRoute(getRoute())
     window.addEventListener('hashchange', onHash)
@@ -88,7 +114,7 @@ export default function App() {
           Showing starter content — connect Supabase (see README.md) for live editing.
         </p>
       )}
-      <PublicSite content={content} />
+      <PublicSite content={content} theme={theme} onToggleTheme={toggleTheme} />
     </>
   )
 }
