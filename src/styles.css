@@ -86,6 +86,7 @@ a { color: #fbbf24; }
 .field { display: block; margin: 12px 0; }
 .field > span { display: block; font-size: 14px; color: #94a3b8; margin-bottom: 4px; }
 .field input[type="text"], .field input[type="email"], .field input[type="password"],
+.field input[type="number"],
 .field textarea, .field select, .row input[type="text"] {
   width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid #334155;
   background: #0b1220; color: #e2e8f0; font-size: 15px;
@@ -148,3 +149,20 @@ a { color: #fbbf24; }
 @media (max-width: 600px) {
   .section { padding: 24px 20px; }
 }
+
+/* Blog */
+.blog-body { white-space: pre-line; }
+.back-link { display: inline-block; margin-bottom: 8px; }
+.post-list { line-height: 2; }
+.post-list a { font-size: 17px; }
+
+/* Blog metrics (admin panel, dark only) */
+.metric-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+.metric-card { background: #0b1220; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; color: #94a3b8; }
+.metric-num { font-size: 30px; font-weight: bold; color: #fff; line-height: 1.2; }
+.bar-row { margin: 12px 0; }
+.bar-track { height: 10px; background: #1e293b; border-radius: 999px; overflow: hidden; margin-top: 4px; }
+.bar-fill { display: block; height: 100%; background: #fbbf24; border-radius: 999px; }
+.metric-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 15px; }
+.metric-table th, .metric-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #1e293b; }
+.metric-table th { color: #94a3b8; font-size: 13px; }

@@ -29,12 +29,12 @@ async function persistPositions(table, rows) {
 
 // ---------- form bits ----------
 
-function TextField({ label, value, onChange, textarea }) {
+function TextField({ label, value, onChange, textarea, rows }) {
   return (
     <label className="field">
       <span>{label}</span>
       {textarea ? (
-        <textarea value={value || ''} onChange={(e) => onChange(e.target.value)} rows={3} />
+        <textarea value={value || ''} onChange={(e) => onChange(e.target.value)} rows={rows || 3} />
       ) : (
         <input type="text" value={value || ''} onChange={(e) => onChange(e.target.value)} />
       )}
@@ -86,6 +86,10 @@ export default function AdminPanel() {
   const [data, setData] = useState(null)
   const [loadError, setLoadError] = useState('')
   const [saved, setSaved] = useState('')
+  const [blogThreads, setBlogThreads] = useState([])
+  const [blogPosts, setBlogPosts] = useState([])
+  const [blogError, setBlogError] = useState('')
+  const [blogThreadFilter, setBlogThreadFilter] = useState('')
 
   useEffect(() => {
     if (!isSupabaseConfigured) return
@@ -98,7 +102,7 @@ export default function AdminPanel() {
   }, [])
 
   useEffect(() => {
-    if (session) loadAll()
+    if (session) { loadAll(); loadBlog() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session])
 
@@ -129,6 +133,94 @@ export default function AdminPanel() {
       links,
       hire: hire[0] || {},
     })
+  }
+
+  // ---------- blog (separate state: a blog-table problem must never
+  // break the rest of the admin panel) ----------
+
+  function slugify(text) {
+    return (text || '')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+  }
+
+  async function loadBlog() {
+    const [tRes, pRes] = await Promise.all([
+      supabase.from('blog_threads').select('*').order('position'),
+      supabase.from('blog_posts').select('*').order('day_order'),
+    ])
+    if (tRes.error || pRes.error) {
+      setBlogError((tRes.error || pRes.error).message)
+      return
+    }
+    setBlogThreads(tRes.data || [])
+    setBlogPosts(pRes.data || [])
+    setBlogError('')
+  }
+
+  function updateBlog(kind, id, patch) {
+    if (kind === 'thread') {
+      setBlogThreads((rows) => rows.map((r) => (r.id === id ? { ...r, ...patch } : r)))
+    } else {
+      setBlogPosts((rows) => rows.map((r) => (r.id === id ? { ...r, ...patch } : r)))
+    }
+  }
+
+  async function saveBlogRow(table, row, kind) {
+    const toSave = { ...row, slug: (row.slug || '').trim() || slugify(row.title) }
+    let result
+    if (String(row.id).startsWith('new-')) {
+      const { id, ...rest } = toSave
+      result = await supabase.from(table).insert(rest).select().single()
+    } else {
+      result = await supabase.from(table).update(toSave).eq('id', row.id).select().single()
+    }
+    if (result.error) throw result.error
+    const savedRow = result.data
+    if (kind === 'thread') {
+      setBlogThreads((rows) => (rows.some((r) => r.id === row.id) ? rows.map((r) => (r.id === row.id ? savedRow : r)) : [...rows, savedRow]))
+    } else {
+      setBlogPosts((rows) => (rows.some((r) => r.id === row.id) ? rows.map((r) => (r.id === row.id ? savedRow : r)) : [...rows, savedRow]))
+    }
+    flash('Saved ✓')
+  }
+
+  async function deleteBlogThread(id) {
+    if (!window.confirm('Delete this topic and all its posts?')) return
+    const { error } = await supabase.from('blog_threads').delete().eq('id', id)
+    if (error) { alert(error.message); return }
+    setBlogThreads((rows) => rows.filter((r) => r.id !== id))
+    setBlogPosts((rows) => rows.filter((r) => r.thread_id !== id))
+    flash('Deleted ✓')
+  }
+
+  async function deleteBlogPost(id) {
+    if (!window.confirm('Delete this post?')) return
+    const { error } = await supabase.from('blog_posts').delete().eq('id', id)
+    if (error) { alert(error.message); return }
+    setBlogPosts((rows) => rows.filter((r) => r.id !== id))
+    flash('Deleted ✓')
+  }
+
+  async function moveBlogThread(index, dir) {
+    const next = moveInList(blogThreads, index, dir)
+    setBlogThreads(next)
+    await persistPositions('blog_threads', next)
+    flash('Saved ✓')
+  }
+
+  function addBlogThread() {
+    setBlogThreads((rows) => [...rows, { id: `new-${Date.now()}`, position: rows.length + 1, title: '', subject: '', slug: '', description: '', buy_label: '', buy_url: '' }])
+  }
+
+  function addBlogPost() {
+    const threadId = blogThreadFilter || (blogThreads[0] && blogThreads[0].id)
+    if (!threadId) { alert('Add a topic first, then add posts to it.'); return }
+    const inThread = blogPosts.filter((p) => p.thread_id === threadId)
+    const dayOrder = inThread.reduce((m, p) => Math.max(m, p.day_order || 0), 0) + 1
+    setBlogPosts((rows) => [...rows, { id: `new-${Date.now()}`, thread_id: threadId, title: '', slug: '', body: '', day_order: dayOrder, published: true }])
   }
 
   function flash(message) {
@@ -390,6 +482,114 @@ export default function AdminPanel() {
           </div>
         ))}
         <button className="btn secondary" onClick={() => addRow('books', { title: '', description: '', price_label: '', selar_url: '', paystack_url: '', coming_soon: false })}>+ Add book</button>
+      </section>
+
+      {/* Blog */}
+      <section className="panel-section">
+        <h2>Blog</h2>
+        {blogError && <p className="error">Blog could not load: {blogError}</p>}
+        <p className="hint">Topics group posts — one topic per book or subject. Posts are pasted here as plain text and line breaks are kept. Nothing shows on the public blog until you add it here.</p>
+        <h3>Topics</h3>
+        {blogThreads.map((row, i) => (
+          <div className="card-edit" key={row.id}>
+            <TextField label="Topic title (e.g. Prepare for WAEC Mathematics in 30 Days)" value={row.title} onChange={(v) => updateBlog('thread', row.id, { title: v })} />
+            <TextField label="Subject (e.g. Mathematics)" value={row.subject} onChange={(v) => updateBlog('thread', row.id, { subject: v })} />
+            <TextField label="Description" textarea value={row.description} onChange={(v) => updateBlog('thread', row.id, { description: v })} />
+            <TextField label="Buy button label (blank = “Buy the complete book”)" value={row.buy_label} onChange={(v) => updateBlog('thread', row.id, { buy_label: v })} />
+            <TextField label="Buy URL — Selar or Paystack link (blank = no button)" value={row.buy_url} onChange={(v) => updateBlog('thread', row.id, { buy_url: v })} />
+            <TextField label="Slug — web address part (blank = filled from the title when you save)" value={row.slug} onChange={(v) => updateBlog('thread', row.id, { slug: v })} />
+            <div className="row">
+              <button onClick={() => saveBlogRow('blog_threads', row, 'thread').catch((e) => alert(e.message))}>Save</button>
+              <button onClick={() => moveBlogThread(i, -1)}>↑</button>
+              <button onClick={() => moveBlogThread(i, 1)}>↓</button>
+              <button onClick={() => deleteBlogThread(row.id)}>Delete</button>
+            </div>
+          </div>
+        ))}
+        <button className="btn secondary" onClick={addBlogThread}>+ Add topic</button>
+
+        <h3>Posts</h3>
+        <label className="field"><span>Show posts for</span>
+          <select value={blogThreadFilter} onChange={(e) => setBlogThreadFilter(e.target.value)}>
+            <option value="">All topics</option>
+            {blogThreads.map((t) => (
+              <option key={t.id} value={t.id}>{t.title || '(untitled topic)'}</option>
+            ))}
+          </select>
+        </label>
+        {(blogThreadFilter ? blogPosts.filter((p) => p.thread_id === blogThreadFilter) : blogPosts).map((row) => (
+          <div className="card-edit" key={row.id}>
+            <label className="field"><span>Topic</span>
+              <select value={row.thread_id} onChange={(e) => updateBlog('post', row.id, { thread_id: e.target.value })}>
+                {blogThreads.map((t) => (
+                  <option key={t.id} value={t.id}>{t.title || '(untitled topic)'}</option>
+                ))}
+              </select>
+            </label>
+            <TextField label="Post title (e.g. Day 1: Indices and Logarithms)" value={row.title} onChange={(v) => updateBlog('post', row.id, { title: v })} />
+            <TextField label="Slug (blank = filled from the title when you save)" value={row.slug} onChange={(v) => updateBlog('post', row.id, { slug: v })} />
+            <label className="field"><span>Day / order number</span>
+              <input type="number" value={row.day_order} onChange={(e) => updateBlog('post', row.id, { day_order: parseInt(e.target.value, 10) || 0 })} />
+            </label>
+            <TextField label="Body — paste the full post text here" textarea rows={12} value={row.body} onChange={(v) => updateBlog('post', row.id, { body: v })} />
+            <label className="field"><span>
+              <input type="checkbox" checked={!!row.published} onChange={(e) => updateBlog('post', row.id, { published: e.target.checked })} />
+              {' '}Published (uncheck to hide from the public blog)
+            </span></label>
+            <div className="row">
+              <button onClick={() => saveBlogRow('blog_posts', row, 'post').catch((e) => alert(e.message))}>Save</button>
+              <button onClick={() => deleteBlogPost(row.id)}>Delete</button>
+              <span className="hint">{row.views || 0} views</span>
+            </div>
+          </div>
+        ))}
+        <button className="btn secondary" onClick={addBlogPost}>+ Add post</button>
+
+        <h3>Metrics</h3>
+        <p className="hint">Views count page loads on a post, not unique visitors.</p>
+        <button className="btn secondary" onClick={loadBlog}>Refresh metrics</button>
+        {(() => {
+          const totalViews = blogPosts.reduce((s, p) => s + (p.views || 0), 0)
+          const publishedCount = blogPosts.filter((p) => p.published).length
+          const perThread = blogThreads.map((t) => {
+            const tPosts = blogPosts.filter((p) => p.thread_id === t.id)
+            return { thread: t, posts: tPosts.length, published: tPosts.filter((p) => p.published).length, views: tPosts.reduce((s, p) => s + (p.views || 0), 0) }
+          })
+          const maxViews = Math.max(1, ...perThread.map((r) => r.views))
+          return (
+            <>
+              <div className="metric-grid">
+                <div className="metric-card"><div className="metric-num">{blogThreads.length}</div><div>Topics</div></div>
+                <div className="metric-card"><div className="metric-num">{blogPosts.length}</div><div>Posts</div></div>
+                <div className="metric-card"><div className="metric-num">{publishedCount}</div><div>Published</div></div>
+                <div className="metric-card"><div className="metric-num">{totalViews}</div><div>Total views</div></div>
+              </div>
+              <h3>Views by topic</h3>
+              {perThread.length === 0 ? <p className="hint">No topics yet.</p> : perThread.map((r) => (
+                <div className="bar-row" key={r.thread.id}>
+                  <span>{r.thread.title || '(untitled topic)'} — {r.views} views · {r.posts} posts ({r.published} published)</span>
+                  <div className="bar-track"><span className="bar-fill" style={{ width: `${Math.round((r.views / maxViews) * 100)}%` }} /></div>
+                </div>
+              ))}
+              <h3>Views by post</h3>
+              {blogPosts.length === 0 ? <p className="hint">No posts yet.</p> : (
+                <table className="metric-table">
+                  <thead><tr><th>Post</th><th>Topic</th><th>Views</th><th>Status</th></tr></thead>
+                  <tbody>
+                    {blogPosts.map((p) => (
+                      <tr key={p.id}>
+                        <td>{p.title || '(untitled)'}</td>
+                        <td>{(blogThreads.find((t) => t.id === p.thread_id) || {}).title || '—'}</td>
+                        <td>{p.views || 0}</td>
+                        <td>{p.published ? 'Published' : 'Draft'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </>
+          )
+        })()}
       </section>
 
       {/* Services */}

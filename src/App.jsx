@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import PublicSite from './PublicSite'
+import BlogSite from './BlogSite'
 import AdminPanel from './AdminPanel'
 import { supabase } from './supabaseClient'
 import { seedData } from './seedData'
@@ -9,6 +10,7 @@ function getRoute() {
   // Invite/recovery links land with an access token in the hash: send them
   // to the admin panel, where the session is picked up and a password can be set.
   if (hash === '#/admin' || hash.includes('access_token')) return 'admin'
+  if (hash === '#/blog' || hash.startsWith('#/blog/')) return 'blog'
   return 'public'
 }
 
@@ -87,12 +89,12 @@ export default function App() {
     }
   }, [])
 
-  // Light theme only affects the public site; the admin panel stays dark.
+  // Light theme affects the public site and the blog; the admin panel stays dark.
   useEffect(() => {
-    if (route === 'public') {
-      document.body.classList.toggle('light-theme', theme === 'light')
-    } else {
+    if (route === 'admin') {
       document.body.classList.remove('light-theme')
+    } else {
+      document.body.classList.toggle('light-theme', theme === 'light')
     }
   }, [theme, route])
 
@@ -108,6 +110,8 @@ export default function App() {
   }, [route, loadContent])
 
   if (route === 'admin') return <AdminPanel />
+
+  if (route === 'blog') return <BlogSite theme={theme} onToggleTheme={toggleTheme} />
 
   return (
     <>
