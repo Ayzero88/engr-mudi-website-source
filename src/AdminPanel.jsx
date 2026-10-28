@@ -429,6 +429,12 @@ export default function AdminPanel() {
         <h2>Projects</h2>
         {data.projects.map((row, i) => (
           <div className="card-edit" key={row.id}>
+            {/* Save at the top too, so a long project card never hides it
+                below the Screenshot field. Same save as the bottom button. */}
+            <div className="row">
+              <button onClick={() => saveRow('projects', row).catch((e) => alert(e.message))}>Save</button>
+              <span className="hint">{row.title || '(new project)'}</span>
+            </div>
             <TextField label="Title" value={row.title} onChange={(v) => updateList('projects', row.id, { title: v })} />
             <TextField label="Tagline (optional)" value={row.tagline} onChange={(v) => updateList('projects', row.id, { tagline: v })} />
             <TextField label="Description" textarea value={row.description} onChange={(v) => updateList('projects', row.id, { description: v })} />
