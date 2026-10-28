@@ -21,6 +21,14 @@ on conflict (id) do update set
   shorts_url = excluded.shorts_url,
   logo_url = excluded.logo_url;
 
+-- About (single row, editable from the admin panel)
+insert into about_text (id, body)
+values (
+  1,
+  'Ayzeroxa Technologies builds software and tutors people from no tech background to fullstack developers. We started in 2023, and our founder is Osemudiamen Ayo-Okhiria.'
+)
+on conflict (id) do update set body = excluded.body;
+
 -- Stack (15 items, in order)
 delete from stack_items;
 insert into stack_items (label, position) values
