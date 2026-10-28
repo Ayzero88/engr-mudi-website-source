@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase, isSupabaseConfigured } from './supabaseClient'
+import AyzeroxaChat from './AyzeroxaChat'
+import { seedData } from './seedData'
 
 // Hash routes (shareable links, post them anywhere):
 //   #/blog                         -> all topics
@@ -258,6 +260,7 @@ export default function BlogSite({ theme, onToggleTheme }) {
       {showTop && (
         <button type="button" className="to-top-float" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">↑</button>
       )}
+      <AyzeroxaChat content={seedData} />
     </div>
   )
 }

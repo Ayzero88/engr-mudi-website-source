@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import AyzeroxaChat from './AyzeroxaChat'
 
 export default function PublicSite({ content, theme, onToggleTheme }) {
   const { hero, stack, projects, coaching, coachingTopics, coachingPhotos, books, services, socialLinks, hire } = content
@@ -46,7 +47,7 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
 
         <section className="section" id="about">
           <h2>About</h2>
-          <p>Ayzeroxa Technologies builds software and tutors people from no tech background to fullstack developers. We started in 2023, and our founder is Osemudiamen Ayo-Okhiria.</p>
+          <p>{content.about && content.about.body ? content.about.body : 'Ayzeroxa Technologies builds software and tutors people from no tech background to fullstack developers. We started in 2023, and our founder is Osemudiamen Ayo-Okhiria.'}</p>
         </section>
 
         <section className="section">
@@ -146,6 +147,7 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
       {showTop && (
         <button type="button" className="to-top-float" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">↑</button>
       )}
+      <AyzeroxaChat content={content} />
     </div>
   )
 }

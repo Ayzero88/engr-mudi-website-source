@@ -90,6 +90,7 @@ export default function AdminPanel() {
   const [blogPosts, setBlogPosts] = useState([])
   const [blogError, setBlogError] = useState('')
   const [blogThreadFilter, setBlogThreadFilter] = useState('')
+  const [aboutError, setAboutError] = useState('')
 
   useEffect(() => {
     if (!isSupabaseConfigured) return
@@ -123,6 +124,7 @@ export default function AdminPanel() {
     const [hero, coaching, hire, stack, projects, photos, topics, books, services, links] = results.map((r) => r.data)
     setData({
       hero: hero[0] || {},
+      about: { body: 'Ayzeroxa Technologies builds software and tutors people from no tech background to fullstack developers. We started in 2023, and our founder is Osemudiamen Ayo-Okhiria.' },
       stack,
       projects,
       coaching: coaching[0] || {},
@@ -133,6 +135,19 @@ export default function AdminPanel() {
       links,
       hire: hire[0] || {},
     })
+    // About loads separately: if the about_text table does not exist yet
+    // (migration not run), the rest of the panel still works.
+    try {
+      const { data: aboutRow, error: aboutErr } = await supabase.from('about_text').select('*').eq('id', 1).single()
+      if (aboutErr) {
+        setAboutError('About table not found yet — run supabase/migration-about.sql in the Supabase SQL editor, then refresh this page.')
+      } else if (aboutRow) {
+        setAboutError('')
+        setData((d) => ({ ...d, about: aboutRow }))
+      }
+    } catch {
+      setAboutError('About could not load — run supabase/migration-about.sql in the Supabase SQL editor, then refresh this page.')
+    }
   }
 
   // ---------- blog (separate state: a blog-table problem must never
@@ -383,6 +398,15 @@ export default function AdminPanel() {
         <TextField label="Shorts link URL" value={data.hero.shorts_url} onChange={(v) => setData((d) => ({ ...d, hero: { ...d.hero, shorts_url: v } }))} />
         <ImageField label="Logo" value={data.hero.logo_url} onChange={(v) => setData((d) => ({ ...d, hero: { ...d.hero, logo_url: v } }))} />
         <button className="btn" onClick={() => saveSingle('hero', data.hero).catch((e) => alert(e.message))}>Save hero</button>
+      </section>
+
+      {/* About */}
+      <section className="panel-section">
+        <h2>About</h2>
+        <p className="hint">This is the About section on the public site, and the Ayzeroxa bot also answers from it.</p>
+        {aboutError && <p className="error">{aboutError}</p>}
+        <TextField label="About text" textarea rows={5} value={data.about && data.about.body} onChange={(v) => setData((d) => ({ ...d, about: { ...(d.about || {}), body: v } }))} />
+        <button className="btn" onClick={() => saveSingle('about_text', data.about).catch((e) => alert(e.message))}>Save about</button>
       </section>
 
       {/* Stack */}

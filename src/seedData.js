@@ -2,6 +2,9 @@
 // Used when Supabase is not configured yet, or if a fetch fails,
 // so the public site always renders something real.
 export const seedData = {
+  about: {
+    body: 'Ayzeroxa Technologies builds software and tutors people from no tech background to fullstack developers. We started in 2023, and our founder is Osemudiamen Ayo-Okhiria.',
+  },
   hero: {
     full_name: 'Osemudiamen Ayo-Okhiria',
     brand_tag: 'Engr. Mudi',

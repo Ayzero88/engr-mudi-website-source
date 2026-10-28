@@ -68,7 +68,15 @@ export default function App() {
       if (results.some((r) => r.error)) throw new Error('Supabase fetch failed')
       const [hero, stack, projects, coaching, photos, topics, books, services, links, hire] =
         results.map((r) => r.data)
+      // About loads separately so a missing about_text table (migration not
+      // run yet) never breaks the rest of the site — it falls back to seed.
+      let about = seedData.about
+      try {
+        const { data: aboutRow, error: aboutError } = await supabase.from('about_text').select('*').eq('id', 1).single()
+        if (!aboutError && aboutRow) about = aboutRow
+      } catch {}
       setContent({
+        about,
         hero: pick(hero, seedData.hero),
         stack: pick(stack, seedData.stack),
         projects: pick(projects, seedData.projects),
