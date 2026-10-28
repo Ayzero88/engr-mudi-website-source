@@ -21,6 +21,12 @@ create table if not exists hero (
   constraint hero_single_row check (id = 1)
 );
 
+create table if not exists about_text (
+  id int primary key default 1,
+  body text not null,
+  constraint about_single_row check (id = 1)
+);
+
 create table if not exists stack_items (
   id uuid primary key default gen_random_uuid(),
   label text not null,
@@ -92,6 +98,7 @@ create table if not exists hire_text (
 -- Public read, authenticated-only write, on every table.
 
 alter table hero enable row level security;
+alter table about_text enable row level security;
 alter table stack_items enable row level security;
 alter table projects enable row level security;
 alter table coaching enable row level security;
@@ -107,7 +114,7 @@ do $$
 declare t text;
 begin
   for t in select unnest(array[
-    'hero','stack_items','projects','coaching','coaching_photos','coaching_topics',
+    'hero','about_text','stack_items','projects','coaching','coaching_photos','coaching_topics',
     'books','services','social_links','hire_text'
   ]) loop
     execute format(
@@ -122,7 +129,7 @@ do $$
 declare t text;
 begin
   for t in select unnest(array[
-    'hero','stack_items','projects','coaching','coaching_photos','coaching_topics',
+    'hero','about_text','stack_items','projects','coaching','coaching_photos','coaching_topics',
     'books','services','social_links','hire_text'
   ]) loop
     execute format(
