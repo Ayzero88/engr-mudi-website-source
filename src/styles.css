@@ -69,7 +69,11 @@ a { color: #fbbf24; }
 .card h3 { margin-top: 0; color: #fff; letter-spacing: -0.01em; font-weight: 600; }
 .tagline { color: #fbbf24; font-style: italic; }
 .project-img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background: #0b1220; border-radius: 8px; display: block; }
-.photo img { width: 100%; border-radius: 8px; display: block; }
+/* Coaching photos: every photo renders in the same 4:3 box, no matter
+   what shape was uploaded. object-fit: contain (not cover) so a wide
+   screenshot is never cropped — it letterboxes in black, which blends
+   with dark screenshots and the dark theme. */
+.photo img { width: 100%; aspect-ratio: 4 / 3; object-fit: contain; background: #000; border-radius: 8px; display: block; }
 .photo { margin: 0; }
 .photo figcaption { color: #94a3b8; font-size: 14px; margin-top: 8px; }
 .price { font-size: 22px; font-weight: bold; color: #fff; }
