@@ -33,7 +33,7 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
 
       <main>
         <section className="hero">
-          <h1>{hero.full_name}</h1>
+          <h1>Learn, Build &amp; Impact</h1>
           <p className="hero-tagline">Personalizing the code</p>
           <p className="brand-tag">{hero.brand_tag}</p>
           <p>
