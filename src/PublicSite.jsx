@@ -1,7 +1,13 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 
 export default function PublicSite({ content, theme, onToggleTheme }) {
   const { hero, stack, projects, coaching, coachingTopics, coachingPhotos, books, services, socialLinks, hire } = content
+  const [showTop, setShowTop] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 400)
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   return (
     <div className={theme === 'light' ? 'page light' : 'page'}>
@@ -9,13 +15,15 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
         <div className="header-inner">
           <a className="brand" href="#/">
             {hero.logo_url && <img className="logo" src={hero.logo_url} alt="AXAT logo" />}
-            <span className="brand-name">{hero.brand_tag}</span>
+            <span className="brand-name">Ayzeroxa Technologies</span>
           </a>
           <nav className="nav">
+            <a href="#about">About</a>
             <a href="#software">Software</a>
             <a href="#coaching">Coaching</a>
             <a href="#books">Books</a>
-            <a href="#hire">Hire me</a>
+            <a href="#/blog">Blog</a>
+            <a href="#hire">Hire us</a>
             <button type="button" className="theme-toggle" onClick={onToggleTheme}>
               {theme === 'light' ? '🌙 Dark mode' : '☀️ Light mode'}
             </button>
@@ -26,6 +34,7 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
       <main>
         <section className="hero">
           <h1>{hero.full_name}</h1>
+          <p className="hero-tagline">Personalizing the code</p>
           <p className="brand-tag">{hero.brand_tag}</p>
           <p>
             <a className="shorts-link" href={hero.shorts_url} target="_blank" rel="noreferrer">
@@ -33,6 +42,11 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
             </a>
           </p>
           <p className="hero-sub">Software developer and author.</p>
+        </section>
+
+        <section className="section" id="about">
+          <h2>About</h2>
+          <p>Ayzeroxa Technologies builds software and tutors people from no tech background to fullstack developers. We started in 2023, and our founder is Osemudiamen Ayo-Okhiria.</p>
         </section>
 
         <section className="section">
@@ -108,7 +122,7 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
         </section>
 
         <section className="section" id="hire">
-          <h2>Hire me</h2>
+          <h2>Hire us</h2>
           <p>{hire.body}</p>
           <ul>
             {services.map((s) => (
@@ -127,6 +141,11 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
       <footer className="footer">
         <p>© {new Date().getFullYear()} Ayzeroxa Technologies. All rights reserved.</p>
       </footer>
+
+      <a className="whatsapp-float" href="https://wa.me/2348134882178" target="_blank" rel="noreferrer">WhatsApp</a>
+      {showTop && (
+        <button type="button" className="to-top-float" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">↑</button>
+      )}
     </div>
   )
 }

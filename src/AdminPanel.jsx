@@ -378,7 +378,7 @@ export default function AdminPanel() {
       <section className="panel-section">
         <h2>Hero</h2>
         <TextField label="Full name" value={data.hero.full_name} onChange={(v) => setData((d) => ({ ...d, hero: { ...d.hero, full_name: v } }))} />
-        <TextField label="Brand tag" value={data.hero.brand_tag} onChange={(v) => setData((d) => ({ ...d, hero: { ...d.hero, brand_tag: v } }))} />
+        <TextField label="Hero brand tag" value={data.hero.brand_tag} onChange={(v) => setData((d) => ({ ...d, hero: { ...d.hero, brand_tag: v } }))} />
         <TextField label="Shorts link label" value={data.hero.shorts_label} onChange={(v) => setData((d) => ({ ...d, hero: { ...d.hero, shorts_label: v } }))} />
         <TextField label="Shorts link URL" value={data.hero.shorts_url} onChange={(v) => setData((d) => ({ ...d, hero: { ...d.hero, shorts_url: v } }))} />
         <ImageField label="Logo" value={data.hero.logo_url} onChange={(v) => setData((d) => ({ ...d, hero: { ...d.hero, logo_url: v } }))} />

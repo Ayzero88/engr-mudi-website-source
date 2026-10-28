@@ -2,10 +2,10 @@
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
-  background-color: #0b1220;
+  background-color: #17171a;
   background-image:
     radial-gradient(ellipse 80% 50% at 50% -10%, rgba(251, 191, 36, 0.08), transparent 60%),
-    linear-gradient(180deg, #101a2e 0%, #0b1220 45%, #0d1424 100%);
+    linear-gradient(180deg, #2b2b30 0%, #1c1c1f 45%, #121214 100%);
   background-attachment: fixed;
   color: #e2e8f0;
   line-height: 1.6;
@@ -37,6 +37,7 @@ a { color: #fbbf24; }
 
 .hero { padding: 56px 0 24px; }
 .hero h1 { font-size: 52px; line-height: 1.1; margin: 0 0 8px; color: #fff; letter-spacing: -0.02em; font-weight: 700; }
+.hero-tagline { font-size: 24px; font-weight: 600; color: #fbbf24; margin: 0 0 12px; }
 .brand-tag {
   display: inline-block; background: #fbbf24; color: #0b1220;
   font-weight: bold; padding: 4px 14px; border-radius: 999px; margin: 0 0 12px;
@@ -46,7 +47,7 @@ a { color: #fbbf24; }
 
 .section {
   margin-top: 32px; padding: 32px;
-  background: linear-gradient(180deg, #111c30 0%, #0c1424 100%);
+  background: linear-gradient(180deg, #232326 0%, #1a1a1d 100%);
   border: 1px solid #1e293b; border-radius: 18px;
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
 }
@@ -105,6 +106,7 @@ a { color: #fbbf24; }
 
 @media (max-width: 600px) {
   .hero h1 { font-size: 34px; }
+  .hero-tagline { font-size: 20px; }
   .row { flex-wrap: wrap; }
 }
 
@@ -114,6 +116,13 @@ a { color: #fbbf24; }
   padding: 4px 12px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 14px;
 }
 .theme-toggle:hover { border-color: #fbbf24; }
+
+/* Floating buttons */
+.whatsapp-float { position: fixed; right: 20px; bottom: 20px; z-index: 100; background: #25d366; color: #fff; font-weight: bold; padding: 12px 20px; border-radius: 999px; text-decoration: none; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+.to-top-float { position: fixed; right: 20px; bottom: 88px; z-index: 100; width: 48px; height: 48px; border-radius: 50%; background: #26262a; color: #fbbf24; border: 1px solid #3a3a40; font-size: 20px; cursor: pointer; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+.page.light .whatsapp-float { color: #fff; }
+.page.light .hero-tagline { color: #b45309; }
+.page.light .to-top-float { background: #ffffff; color: #b45309; border-color: #e2e8f0; }
 
 /* Light theme */
 .page.light { color: #0f172a; }
