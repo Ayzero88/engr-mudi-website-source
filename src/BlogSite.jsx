@@ -30,6 +30,9 @@ export default function BlogSite({ theme, onToggleTheme }) {
   const [loadError, setLoadError] = useState('')
   const [copied, setCopied] = useState(false)
   const [showTop, setShowTop] = useState(false)
+  // Chat content: live Supabase content when available, so the blog bot
+  // updates with admin edits exactly like the main-site bot does.
+  const [chatContent, setChatContent] = useState(seedData)
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 400)
     window.addEventListener('scroll', onScroll)
@@ -68,6 +71,50 @@ export default function BlogSite({ theme, onToggleTheme }) {
   useEffect(() => {
     loadBlog()
   }, [loadBlog])
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) return
+    ;(async () => {
+      try {
+        const results = await Promise.all([
+          supabase.from('hero').select('*').eq('id', 1).single(),
+          supabase.from('stack_items').select('*').order('position'),
+          supabase.from('projects').select('*').order('position'),
+          supabase.from('coaching').select('*').eq('id', 1).single(),
+          supabase.from('coaching_topics').select('*').order('position'),
+          supabase.from('books').select('*').order('position'),
+          supabase.from('services').select('*').order('position'),
+          supabase.from('social_links').select('*').order('position'),
+          supabase.from('hire_text').select('*').eq('id', 1).single(),
+        ])
+        if (results.some((r) => r.error)) return
+        const [hero, stack, projects, coaching, topics, books, services, links, hire] = results.map((r) => r.data)
+        let about = seedData.about
+        try {
+          const { data: aboutRow, error: aboutError } = await supabase.from('about_text').select('*').eq('id', 1).single()
+          if (!aboutError && aboutRow) about = aboutRow
+        } catch {}
+        const pick = (dbValue, seedValue) => {
+          if (dbValue == null) return seedValue
+          if (Array.isArray(dbValue)) return dbValue.length > 0 ? dbValue : seedValue
+          return dbValue
+        }
+        setChatContent({
+          ...seedData,
+          about,
+          hero: pick(hero, seedData.hero),
+          stack: pick(stack, seedData.stack),
+          projects: pick(projects, seedData.projects),
+          coaching: pick(coaching, seedData.coaching),
+          coachingTopics: pick(topics, seedData.coachingTopics),
+          books: pick(books, seedData.books),
+          services: pick(services, seedData.services),
+          socialLinks: pick(links, seedData.socialLinks),
+          hire: pick(hire, seedData.hire),
+        })
+      } catch {}
+    })()
+  }, [])
 
   useEffect(() => {
     if (!isSupabaseConfigured) return
@@ -260,7 +307,7 @@ export default function BlogSite({ theme, onToggleTheme }) {
       {showTop && (
         <button type="button" className="to-top-float" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">↑</button>
       )}
-      <AyzeroxaChat content={seedData} />
+      <AyzeroxaChat content={chatContent} />
     </div>
   )
 }
