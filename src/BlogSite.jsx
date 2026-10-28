@@ -152,15 +152,24 @@ export default function BlogSite({ theme, onToggleTheme }) {
   const otherThreads = thread ? threads.filter((t) => t.id !== thread.id) : threads
   const threadPosts = thread ? posts.filter((p) => p.thread_id === thread.id) : []
 
+  // Home link: the logo and the Home nav item both go to the home page.
+  function goHome(e) {
+    if (window.location.hash === '#/' || window.location.hash === '') {
+      e.preventDefault()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
   return (
     <div className={theme === 'light' ? 'page light' : 'page'}>
       <header className="header">
         <div className="header-inner">
-          <a className="brand" href="#/">
+          <a className="brand" href="#/" onClick={goHome} aria-label="Home" title="Home">
             {brand.logo_url && <img className="logo" src={brand.logo_url} alt="AXAT logo" />}
             <span className="brand-name">Ayzeroxa Technologies</span>
           </a>
           <nav className="nav">
+            <a href="#/" onClick={goHome}>Home</a>
             <a href="#software">Software</a>
             <a href="#coaching">Coaching</a>
             <a href="#books">Books</a>

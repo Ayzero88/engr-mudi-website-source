@@ -112,6 +112,13 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
+  // Coming from another view (e.g. Blog → Home) must land at the top of
+  // the new view, not at the old scroll position. In-page anchors
+  // (#about, #books) do not change the route, so they are unaffected.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [route])
+
   // Reload whenever we return to the public view, so admin saves show at once.
   useEffect(() => {
     if (route === 'public') loadContent()

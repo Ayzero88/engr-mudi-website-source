@@ -4,6 +4,14 @@ import AyzeroxaChat from './AyzeroxaChat'
 export default function PublicSite({ content, theme, onToggleTheme }) {
   const { hero, stack, projects, coaching, coachingTopics, coachingPhotos, books, services, socialLinks, hire } = content
   const [showTop, setShowTop] = useState(false)
+  // Home link: on the home page itself a plain "#/" click does nothing
+  // visible, so scroll back to the top instead.
+  function goHome(e) {
+    if (window.location.hash === '#/' || window.location.hash === '') {
+      e.preventDefault()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 400)
     window.addEventListener('scroll', onScroll)
@@ -14,11 +22,12 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
     <div className={theme === 'light' ? 'page light' : 'page'}>
       <header className="header">
         <div className="header-inner">
-          <a className="brand" href="#/">
+          <a className="brand" href="#/" onClick={goHome} aria-label="Home" title="Home">
             {hero.logo_url && <img className="logo" src={hero.logo_url} alt="AXAT logo" />}
             <span className="brand-name">Ayzeroxa Technologies</span>
           </a>
           <nav className="nav">
+            <a href="#/" onClick={goHome}>Home</a>
             <a href="#about">About</a>
             <a href="#software">Software</a>
             <a href="#coaching">Coaching</a>
