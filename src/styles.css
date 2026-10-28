@@ -3,9 +3,17 @@ body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
   background-color: #17171a;
+  /* Dark-mode background image (uploaded bg.jpg); the charcoal gradient
+     underneath is the fallback if the image ever fails to load. Light
+     mode (body.light-theme below) overrides this completely, so light
+     mode stays light. */
   background-image:
+    url('/assets/bg.jpg'),
     radial-gradient(ellipse 80% 50% at 50% -10%, rgba(251, 191, 36, 0.08), transparent 60%),
     linear-gradient(180deg, #2b2b30 0%, #1c1c1f 45%, #121214 100%);
+  background-size: cover, auto, auto;
+  background-position: center, 0 0, 0 0;
+  background-repeat: no-repeat, no-repeat, no-repeat;
   background-attachment: fixed;
   color: #e2e8f0;
   line-height: 1.6;
@@ -15,6 +23,8 @@ body.light-theme {
   background-image:
     radial-gradient(ellipse 80% 50% at 50% -10%, rgba(251, 191, 36, 0.16), transparent 60%),
     linear-gradient(180deg, #ffffff 0%, #f1f5f9 50%, #e8edf3 100%);
+  background-size: auto, auto;
+  background-position: 0 0, 0 0;
   color: #0f172a;
 }
 a { color: #fbbf24; }
