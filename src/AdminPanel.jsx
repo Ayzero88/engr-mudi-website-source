@@ -72,6 +72,31 @@ function ImageField({ label, value, onChange }) {
   )
 }
 
+// Save button that shows its own loading state: "Saving…" + disabled
+// while the save runs, back to "Save" when it finishes. The existing
+// "Saved ✓" banner still appears on success; errors still alert.
+function SaveButton({ onSave, className, children }) {
+  const [saving, setSaving] = useState(false)
+  return (
+    <button
+      className={className}
+      disabled={saving}
+      onClick={async () => {
+        setSaving(true)
+        try {
+          await onSave()
+        } catch (e) {
+          alert(e.message)
+        } finally {
+          setSaving(false)
+        }
+      }}
+    >
+      {saving ? 'Saving…' : children}
+    </button>
+  )
+}
+
 // ---------- admin panel ----------
 
 export default function AdminPanel() {
@@ -397,7 +422,7 @@ export default function AdminPanel() {
         <TextField label="Shorts link label" value={data.hero.shorts_label} onChange={(v) => setData((d) => ({ ...d, hero: { ...d.hero, shorts_label: v } }))} />
         <TextField label="Shorts link URL" value={data.hero.shorts_url} onChange={(v) => setData((d) => ({ ...d, hero: { ...d.hero, shorts_url: v } }))} />
         <ImageField label="Logo" value={data.hero.logo_url} onChange={(v) => setData((d) => ({ ...d, hero: { ...d.hero, logo_url: v } }))} />
-        <button className="btn" onClick={() => saveSingle('hero', data.hero).catch((e) => alert(e.message))}>Save hero</button>
+        <SaveButton className="btn" onSave={() => saveSingle('hero', data.hero)}>Save hero</SaveButton>
       </section>
 
       {/* About */}
@@ -406,7 +431,7 @@ export default function AdminPanel() {
         <p className="hint">This is the About section on the public site, and the Ayzeroxa bot also answers from it.</p>
         {aboutError && <p className="error">{aboutError}</p>}
         <TextField label="About text" textarea rows={5} value={data.about && data.about.body} onChange={(v) => setData((d) => ({ ...d, about: { ...(d.about || {}), body: v } }))} />
-        <button className="btn" onClick={() => saveSingle('about_text', data.about).catch((e) => alert(e.message))}>Save about</button>
+        <SaveButton className="btn" onSave={() => saveSingle('about_text', data.about)}>Save about</SaveButton>
       </section>
 
       {/* Stack */}
@@ -415,7 +440,7 @@ export default function AdminPanel() {
         {data.stack.map((row, i) => (
           <div className="row" key={row.id}>
             <input type="text" value={row.label} onChange={(e) => updateList('stack', row.id, { label: e.target.value })} />
-            <button onClick={() => saveRow('stack_items', row).catch((e) => alert(e.message))}>Save</button>
+            <SaveButton onSave={() => saveRow('stack_items', row)}>Save</SaveButton>
             <button onClick={() => reorder('stack_items', 'stack', i, -1)}>↑</button>
             <button onClick={() => reorder('stack_items', 'stack', i, 1)}>↓</button>
             <button onClick={() => deleteRow('stack_items', row.id, 'stack')}>Delete</button>
@@ -432,7 +457,7 @@ export default function AdminPanel() {
             {/* Save at the top too, so a long project card never hides it
                 below the Screenshot field. Same save as the bottom button. */}
             <div className="row">
-              <button onClick={() => saveRow('projects', row).catch((e) => alert(e.message))}>Save</button>
+              <SaveButton onSave={() => saveRow('projects', row)}>Save</SaveButton>
               <span className="hint">{row.title || '(new project)'}</span>
             </div>
             <TextField label="Title" value={row.title} onChange={(v) => updateList('projects', row.id, { title: v })} />
@@ -446,7 +471,7 @@ export default function AdminPanel() {
             </label>
             <ImageField label="Screenshot" value={row.image_url} onChange={(v) => updateList('projects', row.id, { image_url: v })} />
             <div className="row">
-              <button onClick={() => saveRow('projects', row).catch((e) => alert(e.message))}>Save</button>
+              <SaveButton onSave={() => saveRow('projects', row)}>Save</SaveButton>
               <button onClick={() => reorder('projects', 'projects', i, -1)}>↑</button>
               <button onClick={() => reorder('projects', 'projects', i, 1)}>↓</button>
               <button onClick={() => deleteRow('projects', row.id, 'projects')}>Delete</button>
@@ -461,12 +486,12 @@ export default function AdminPanel() {
         <h2>Coaching</h2>
         <TextField label="Coaching text" textarea value={data.coaching.body} onChange={(v) => setData((d) => ({ ...d, coaching: { ...d.coaching, body: v } }))} />
         <TextField label="Current training note (highlighted box — leave blank to hide it)" textarea value={data.coaching.note} onChange={(v) => setData((d) => ({ ...d, coaching: { ...d.coaching, note: v } }))} />
-        <button className="btn" onClick={() => saveSingle('coaching', data.coaching).catch((e) => alert(e.message))}>Save coaching text</button>
+        <SaveButton className="btn" onSave={() => saveSingle('coaching', data.coaching)}>Save coaching text</SaveButton>
         <h3>What I coach</h3>
         {data.topics.map((row, i) => (
           <div className="row" key={row.id}>
             <input type="text" value={row.label} onChange={(e) => updateList('topics', row.id, { label: e.target.value })} />
-            <button onClick={() => saveRow('coaching_topics', row).catch((e) => alert(e.message))}>Save</button>
+            <SaveButton onSave={() => saveRow('coaching_topics', row)}>Save</SaveButton>
             <button onClick={() => reorder('coaching_topics', 'topics', i, -1)}>↑</button>
             <button onClick={() => reorder('coaching_topics', 'topics', i, 1)}>↓</button>
             <button onClick={() => deleteRow('coaching_topics', row.id, 'topics')}>Delete</button>
@@ -479,7 +504,7 @@ export default function AdminPanel() {
             <ImageField label="Photo" value={row.image_url} onChange={(v) => updateList('photos', row.id, { image_url: v })} />
             <TextField label="Caption" value={row.caption} onChange={(v) => updateList('photos', row.id, { caption: v })} />
             <div className="row">
-              <button onClick={() => saveRow('coaching_photos', row).catch((e) => alert(e.message))}>Save</button>
+              <SaveButton onSave={() => saveRow('coaching_photos', row)}>Save</SaveButton>
               <button onClick={() => reorder('coaching_photos', 'photos', i, -1)}>↑</button>
               <button onClick={() => reorder('coaching_photos', 'photos', i, 1)}>↓</button>
               <button onClick={() => deleteRow('coaching_photos', row.id, 'photos')}>Delete</button>
@@ -504,7 +529,7 @@ export default function AdminPanel() {
               {' '}Coming soon (no buy buttons)
             </span></label>
             <div className="row">
-              <button onClick={() => saveRow('books', row).catch((e) => alert(e.message))}>Save</button>
+              <SaveButton onSave={() => saveRow('books', row)}>Save</SaveButton>
               <button onClick={() => reorder('books', 'books', i, -1)}>↑</button>
               <button onClick={() => reorder('books', 'books', i, 1)}>↓</button>
               <button onClick={() => deleteRow('books', row.id, 'books')}>Delete</button>
@@ -529,7 +554,7 @@ export default function AdminPanel() {
             <TextField label="Buy URL — Selar or Paystack link (blank = no button)" value={row.buy_url} onChange={(v) => updateBlog('thread', row.id, { buy_url: v })} />
             <TextField label="Slug — web address part (blank = filled from the title when you save)" value={row.slug} onChange={(v) => updateBlog('thread', row.id, { slug: v })} />
             <div className="row">
-              <button onClick={() => saveBlogRow('blog_threads', row, 'thread').catch((e) => alert(e.message))}>Save</button>
+              <SaveButton onSave={() => saveBlogRow('blog_threads', row, 'thread')}>Save</SaveButton>
               <button onClick={() => moveBlogThread(i, -1)}>↑</button>
               <button onClick={() => moveBlogThread(i, 1)}>↓</button>
               <button onClick={() => deleteBlogThread(row.id)}>Delete</button>
@@ -567,7 +592,7 @@ export default function AdminPanel() {
               {' '}Published (uncheck to hide from the public blog)
             </span></label>
             <div className="row">
-              <button onClick={() => saveBlogRow('blog_posts', row, 'post').catch((e) => alert(e.message))}>Save</button>
+              <SaveButton onSave={() => saveBlogRow('blog_posts', row, 'post')}>Save</SaveButton>
               <button onClick={() => deleteBlogPost(row.id)}>Delete</button>
               <span className="hint">{row.views || 0} views</span>
             </div>
@@ -628,7 +653,7 @@ export default function AdminPanel() {
         {data.services.map((row, i) => (
           <div className="row" key={row.id}>
             <input type="text" value={row.label} onChange={(e) => updateList('services', row.id, { label: e.target.value })} />
-            <button onClick={() => saveRow('services', row).catch((e) => alert(e.message))}>Save</button>
+            <SaveButton onSave={() => saveRow('services', row)}>Save</SaveButton>
             <button onClick={() => reorder('services', 'services', i, -1)}>↑</button>
             <button onClick={() => reorder('services', 'services', i, 1)}>↓</button>
             <button onClick={() => deleteRow('services', row.id, 'services')}>Delete</button>
@@ -637,7 +662,7 @@ export default function AdminPanel() {
         <button className="btn secondary" onClick={() => addRow('services', { label: '' })}>+ Add service</button>
         <h3>Hire text</h3>
         <TextField label="Hire me text" textarea value={data.hire.body} onChange={(v) => setData((d) => ({ ...d, hire: { ...d.hire, body: v } }))} />
-        <button className="btn" onClick={() => saveSingle('hire_text', data.hire).catch((e) => alert(e.message))}>Save hire text</button>
+        <SaveButton className="btn" onSave={() => saveSingle('hire_text', data.hire)}>Save hire text</SaveButton>
       </section>
 
       {/* Social links */}
@@ -647,7 +672,7 @@ export default function AdminPanel() {
           <div className="row" key={row.id}>
             <input type="text" value={row.label} onChange={(e) => updateList('links', row.id, { label: e.target.value })} placeholder="Label" />
             <input type="text" value={row.url} onChange={(e) => updateList('links', row.id, { url: e.target.value })} placeholder="URL" />
-            <button onClick={() => saveRow('social_links', row).catch((e) => alert(e.message))}>Save</button>
+            <SaveButton onSave={() => saveRow('social_links', row)}>Save</SaveButton>
             <button onClick={() => reorder('social_links', 'links', i, -1)}>↑</button>
             <button onClick={() => reorder('social_links', 'links', i, 1)}>↓</button>
             <button onClick={() => deleteRow('social_links', row.id, 'links')}>Delete</button>
