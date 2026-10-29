@@ -116,6 +116,8 @@ export default function AdminPanel() {
   const [blogError, setBlogError] = useState('')
   const [blogThreadFilter, setBlogThreadFilter] = useState('')
   const [aboutError, setAboutError] = useState('')
+  const [siteViews, setSiteViews] = useState(null)
+  const [siteViewsError, setSiteViewsError] = useState('')
 
   useEffect(() => {
     if (!isSupabaseConfigured) return
@@ -128,7 +130,7 @@ export default function AdminPanel() {
   }, [])
 
   useEffect(() => {
-    if (session) { loadAll(); loadBlog() }
+    if (session) { loadAll(); loadBlog(); loadSiteViews() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session])
 
@@ -198,6 +200,23 @@ export default function AdminPanel() {
     setBlogThreads(tRes.data || [])
     setBlogPosts(pRes.data || [])
     setBlogError('')
+  }
+
+  // ---------- site-wide analytics (separate state, same pattern) ----------
+
+  async function loadSiteViews() {
+    const { data, error } = await supabase
+      .from('site_page_views')
+      .select('page,session_id,viewed_at')
+      .order('viewed_at', { ascending: false })
+      .limit(5000)
+    if (error) {
+      setSiteViewsError('Site analytics table not found yet — run supabase/migration-analytics.sql in the Supabase SQL editor, then refresh this page.')
+      setSiteViews(null)
+      return
+    }
+    setSiteViewsError('')
+    setSiteViews(data || [])
   }
 
   function updateBlog(kind, id, patch) {
@@ -642,6 +661,53 @@ export default function AdminPanel() {
                   </tbody>
                 </table>
               )}
+            </>
+          )
+        })()}
+      </section>
+
+      {/* Site-wide analytics */}
+      <section className="panel-section">
+        <h2>Site analytics</h2>
+        <p className="hint">Page views across the whole site (home, blog pages, and any other route). Counts page loads, not unique visitors — the “unique visitors” figure counts distinct anonymous browser sessions. Admin pages are never tracked, and no IP addresses or personal data are collected.</p>
+        <button className="btn secondary" onClick={loadSiteViews}>Refresh site analytics</button>
+        {siteViewsError ? <p className="hint">{siteViewsError}</p> : siteViews === null ? <p className="hint">Loading…</p> : (() => {
+          const total = siteViews.length
+          const unique = new Set(siteViews.map((v) => v.session_id)).size
+          const today = new Date().toISOString().slice(0, 10)
+          const todayViews = siteViews.filter((v) => (v.viewed_at || '').slice(0, 10) === today).length
+          const byPage = {}
+          siteViews.forEach((v) => { byPage[v.page] = (byPage[v.page] || 0) + 1 })
+          const pageRows = Object.entries(byPage).sort((a, b) => b[1] - a[1])
+          const maxPage = Math.max(1, ...pageRows.map((r) => r[1]))
+          const byDay = {}
+          siteViews.forEach((v) => {
+            const d = (v.viewed_at || '').slice(0, 10)
+            if (d) byDay[d] = (byDay[d] || 0) + 1
+          })
+          const dayRows = Object.entries(byDay).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 30)
+          const maxDay = Math.max(1, ...dayRows.map((r) => r[1]))
+          return (
+            <>
+              <div className="metric-grid">
+                <div className="metric-card"><div className="metric-num">{total}</div><div>Total page views</div></div>
+                <div className="metric-card"><div className="metric-num">{unique}</div><div>Unique visitors (sessions)</div></div>
+                <div className="metric-card"><div className="metric-num">{todayViews}</div><div>Views today</div></div>
+              </div>
+              <h3>Views by page</h3>
+              {pageRows.length === 0 ? <p className="hint">No page views yet — they start counting once the updated site is live.</p> : pageRows.map(([page, count]) => (
+                <div className="bar-row" key={page}>
+                  <span>{page} — {count} views</span>
+                  <div className="bar-track"><span className="bar-fill" style={{ width: `${Math.round((count / maxPage) * 100)}%` }} /></div>
+                </div>
+              ))}
+              <h3>Views by day (last 30 days)</h3>
+              {dayRows.length === 0 ? <p className="hint">No page views yet.</p> : dayRows.map(([day, count]) => (
+                <div className="bar-row" key={day}>
+                  <span>{day} — {count} views</span>
+                  <div className="bar-track"><span className="bar-fill" style={{ width: `${Math.round((count / maxDay) * 100)}%` }} /></div>
+                </div>
+              ))}
             </>
           )
         })()}

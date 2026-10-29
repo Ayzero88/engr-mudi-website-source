@@ -3,6 +3,7 @@ import PublicSite from './PublicSite'
 import BlogSite from './BlogSite'
 import AdminPanel from './AdminPanel'
 import { supabase } from './supabaseClient'
+import { trackPageView } from './analytics'
 import { seedData } from './seedData'
 
 function getRoute() {
@@ -123,6 +124,11 @@ export default function App() {
   useEffect(() => {
     if (route === 'public') loadContent()
   }, [route, loadContent])
+
+  // Site-wide analytics: one page-view row per route visit, admin excluded.
+  useEffect(() => {
+    if (route !== 'admin') trackPageView()
+  }, [route])
 
   if (route === 'admin') return <AdminPanel />
 
