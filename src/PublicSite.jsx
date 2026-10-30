@@ -145,6 +145,9 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
               <a className="btn secondary" key={l.id} href={l.url} target="_blank" rel="noreferrer">{l.label}</a>
             ))}
           </p>
+          <p><strong>Direct:</strong> <a href="mailto:engr.mudi@ayzeroxa.com.ng">engr.mudi@ayzeroxa.com.ng</a></p>
+          <p><strong>General enquiries:</strong> <a href="mailto:info@ayzeroxa.com.ng">info@ayzeroxa.com.ng</a></p>
+          <p><strong>Support:</strong> <a href="mailto:support@ayzeroxa.com.ng">support@ayzeroxa.com.ng</a></p>
         </section>
       </main>
 
