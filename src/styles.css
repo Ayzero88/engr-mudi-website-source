@@ -290,3 +290,4 @@ a { color: #fbbf24; }
 .blog-body .blog-image { margin: 28px auto; }
 .read-btn { display: inline-flex; align-items: center; gap: 8px; }
 .buy-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.read-error { color: #fca5a5; font-size: 15px; }

@@ -46,28 +46,67 @@ export default function BlogSite({ theme, onToggleTheme }) {
   const [copied, setCopied] = useState(false)
   const [showTop, setShowTop] = useState(false)
   const [reading, setReading] = useState(false)
+  const [readError, setReadError] = useState('')
+  const readQueueRef = useRef([])
   // Read-aloud for a blog post: uses the browser's built-in speech, no
   // server or recording. IMAGE: lines are skipped, so only the post text
   // is spoken. Reading stops when the reader leaves the post.
+  // The text is spoken in short sentence chunks, not one long utterance:
+  // browsers (especially Chrome on Windows) silently fail or cut off on
+  // very long utterances, which is the most likely cause of "button flips
+  // to Stop but no sound".
   useEffect(() => {
     return () => { if ('speechSynthesis' in window) window.speechSynthesis.cancel() }
   }, [route.postSlug])
-  function toggleReadAloud(post) {
-    if (!('speechSynthesis' in window)) return
-    if (reading) {
-      window.speechSynthesis.cancel()
-      setReading(false)
-      return
-    }
-    const text = (post.body || '').split('\n').filter((line) => !line.trim().startsWith('IMAGE:')).join('\n')
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = 'en-GB'
+  function stopReading() {
+    readQueueRef.current = []
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel()
+    setReading(false)
+  }
+  function speakChunk(index) {
+    const queue = readQueueRef.current
+    if (index >= queue.length) { setReading(false); return }
+    const voices = window.speechSynthesis.getVoices()
+    const voice = voices.find((v) => v.lang && v.lang.toLowerCase().startsWith('en-gb'))
+      || voices.find((v) => v.lang && v.lang.toLowerCase().startsWith('en'))
+      || voices[0]
+    const utterance = new SpeechSynthesisUtterance(queue[index])
+    if (voice) { utterance.voice = voice; utterance.lang = voice.lang }
+    else utterance.lang = 'en-GB'
     utterance.rate = 1
-    utterance.onend = () => setReading(false)
-    utterance.onerror = () => setReading(false)
-    window.speechSynthesis.cancel()
+    utterance.volume = 1
+    utterance.onend = () => speakChunk(index + 1)
+    utterance.onerror = () => { stopReading(); setReadError('No voice is available in this browser on this device. Try another browser (Chrome or Edge) or check the laptop volume and output device.') }
     window.speechSynthesis.speak(utterance)
+  }
+  function toggleReadAloud(post) {
+    if (!('speechSynthesis' in window)) { setReadError('Read-aloud is not supported in this browser. Try Chrome or Edge.'); return }
+    if (reading) { stopReading(); return }
+    setReadError('')
+    const text = (post.body || '').split('\n').filter((line) => !line.trim().startsWith('IMAGE:')).join(' ')
+    // Split into sentences, then group into chunks under ~180 characters.
+    const sentences = text.match(/[^.!?]+[.!?]+["']?\s*/g) || [text]
+    const chunks = []
+    let current = ''
+    sentences.forEach((sentence) => {
+      const piece = sentence.trim()
+      if (!piece) return
+      if ((current + ' ' + piece).trim().length > 180 && current) { chunks.push(current.trim()); current = piece }
+      else current = (current + ' ' + piece).trim()
+    })
+    if (current) chunks.push(current.trim())
+    readQueueRef.current = chunks
+    window.speechSynthesis.cancel()
     setReading(true)
+    speakChunk(0)
+    // If nothing actually starts speaking shortly after, the device has
+    // no usable voice — say so instead of showing "Stop" in silence.
+    setTimeout(() => {
+      if (readQueueRef.current.length > 0 && !window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
+        stopReading()
+        setReadError('The browser started but produced no sound. Check the laptop volume, the sound output device, and that this browser tab is not muted — or try Chrome or Edge.')
+      }
+    }, 1500)
   }
   // Chat content: live Supabase content when available, so the blog bot
   // updates with admin edits exactly like the main-site bot does.
@@ -306,6 +345,7 @@ export default function BlogSite({ theme, onToggleTheme }) {
                 {reading ? 'Stop reading' : 'Listen'}
               </button>
             </p>
+            {readError && <p className="read-error">{readError}</p>}
             <div className="blog-body">{renderBlogBody(post.body)}</div>
             {thread.buy_url && (
               <p className="buy-row">
