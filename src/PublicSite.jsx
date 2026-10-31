@@ -1,6 +1,25 @@
 import React, { useState, useEffect } from 'react'
 import AyzeroxaChat from './AyzeroxaChat'
 
+
+// Icon for a social link label; unknown labels fall back to their text.
+function socialIcon(label) {
+  const common = { width: 22, height: 22, 'aria-hidden': true }
+  if (label === 'WhatsApp') return (
+    <svg viewBox="0 0 24 24" {...common} fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .2-1.6-.1-.4-.2-.9-.4-1.5-.8-2.7-1.1-4.4-3.9-4.6-4.1-.1-.2-1-1.4-1-2.6s.6-1.8.9-2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5s.8 1.9.8 2c.1.1.1.3 0 .5l-.4.6c-.1.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.7-.1l.6-.7c.2-.2.4-.2.6-.1l1.9.9c.2.1.4.2.4.3.1.2.1.7-.1 1.3z"/></svg>
+  )
+  if (label === 'YouTube') return (
+    <svg viewBox="0 0 24 24" {...common} fill="currentColor"><path d="M23 7.2s-.2-1.6-.9-2.3c-.9-.9-1.9-.9-2.4-1C16.6 3.6 12 3.6 12 3.6s-4.6 0-7.7.3c-.5.1-1.5.1-2.4 1-.7.7-.9 2.3-.9 2.3S.8 9.1.8 11v1.9c0 1.9.2 3.8.2 3.8s.2 1.6.9 2.3c.9.9 2 .9 2.5 1 1.8.2 7.6.3 7.6.3s4.6 0 7.7-.4c.5-.1 1.5-.1 2.4-1 .7-.7.9-2.3.9-2.3s.2-1.9.2-3.8V11c0-1.9-.2-3.8-.2-3.8zM9.8 15.1V8.4l6.3 3.4-6.3 3.3z"/></svg>
+  )
+  if (label === 'Instagram') return (
+    <svg viewBox="0 0 24 24" {...common} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>
+  )
+  if (label === 'Facebook') return (
+    <svg viewBox="0 0 24 24" {...common} fill="currentColor"><path d="M13.5 22v-8h2.7l.4-3h-3.1V9.1c0-.9.3-1.5 1.6-1.5h1.7V5c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.5-4 4.1V11H7.6v3h2.8v8h3.1z"/></svg>
+  )
+  return null
+}
+
 export default function PublicSite({ content, theme, onToggleTheme }) {
   const { hero, stack, projects, coaching, coachingTopics, coachingPhotos, books, services, socialLinks, hire } = content
   const [showTop, setShowTop] = useState(false)
@@ -141,9 +160,12 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
           </ul>
           <h3 className="contact-title">Contact</h3>
           <p className="buy-row">
-            {socialLinks.map((l) => (
-              <a className="btn secondary" key={l.id} href={l.url} target="_blank" rel="noreferrer">{l.label}</a>
-            ))}
+            {socialLinks.map((l) => {
+              const icon = socialIcon(l.label)
+              return (
+                <a className={icon ? 'btn secondary social-icon' : 'btn secondary'} key={l.id} href={l.url} target="_blank" rel="noreferrer" aria-label={l.label} title={l.label}>{icon || l.label}</a>
+              )
+            })}
           </p>
           <div className="contact-cards">
             <a className="contact-card" href="mailto:engr.mudi@ayzeroxa.com.ng">
