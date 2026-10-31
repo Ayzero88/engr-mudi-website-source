@@ -172,7 +172,7 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
         <p>© {new Date().getFullYear()} Ayzeroxa Technologies. All rights reserved.</p>
       </footer>
 
-      <a className="whatsapp-float" href="https://wa.me/2348075421099" target="_blank" rel="noreferrer">WhatsApp</a>
+      <a className="whatsapp-float" href="https://wa.me/2348075421099" target="_blank" rel="noreferrer" aria-label="WhatsApp" title="WhatsApp"><svg viewBox="0 0 24 24" width="30" height="30" fill="#fff" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .2-1.6-.1-.4-.2-.9-.4-1.5-.8-2.7-1.1-4.4-3.9-4.6-4.1-.1-.2-1-1.4-1-2.6s.6-1.8.9-2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5s.8 1.9.8 2c.1.1.1.3 0 .5l-.4.6c-.1.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.7-.1l.6-.7c.2-.2.4-.2.6-.1l1.9.9c.2.1.4.2.4.3.1.2.1.7-.1 1.3z"/></svg></a>
       {showTop && (
         <button type="button" className="to-top-float" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">↑</button>
       )}

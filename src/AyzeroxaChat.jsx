@@ -97,8 +97,8 @@ export default function AyzeroxaChat({ content }) {
   return (
     <>
       {!open && (
-        <button type="button" className="chat-float" onClick={() => setOpen(true)} aria-label="Ask Ayzeroxa">
-          Ask Ayzeroxa
+        <button type="button" className="chat-float" onClick={() => setOpen(true)} aria-label="Ask Ayzeroxa" title="Ask Ayzeroxa">
+          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#0b1220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="16" height="12" rx="3"/><line x1="12" y1="8" x2="12" y2="5"/><circle cx="12" cy="3.5" r="1.2" fill="#0b1220"/><circle cx="9" cy="13" r="1.3" fill="#0b1220"/><circle cx="15" cy="13" r="1.3" fill="#0b1220"/><line x1="9.5" y1="17" x2="14.5" y2="17"/></svg>
         </button>
       )}
       {open && (
