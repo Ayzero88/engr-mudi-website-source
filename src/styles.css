@@ -39,7 +39,8 @@ a { color: #fbbf24; }
 .logo { height: 40px; width: auto; }
 .brand-name { font-weight: bold; font-size: 20px; }
 .nav { display: flex; gap: 16px; flex-wrap: wrap; }
-.nav a { color: #cbd5e1; text-decoration: none; }
+.nav a { color: #cbd5e1; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.nav a svg { flex-shrink: 0; }
 .nav a:hover { color: #fff; }
 .nav .manage-link {
   color: #0b1220; background: #fbbf24; padding: 2px 12px; border-radius: 999px; font-weight: bold;
