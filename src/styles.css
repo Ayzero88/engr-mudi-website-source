@@ -285,3 +285,4 @@ a { color: #fbbf24; }
 .metric-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 15px; }
 .metric-table th, .metric-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #1e293b; }
 .metric-table th { color: #94a3b8; font-size: 13px; }
+.blog-image { max-width: 100%; height: auto; display: block; margin: 16px auto; border-radius: 12px; }

@@ -22,6 +22,20 @@ function postUrl(thread, post) {
   return `#/blog/${thread.slug}/${post.slug}`
 }
 
+// Blog bodies are plain text, but a line starting with "IMAGE:" followed
+// by a URL renders as an image, so a post can carry diagrams without a
+// schema change: e.g. "IMAGE: https://ayzeroxa.com.ng/assets/shape-1.png"
+function renderBlogBody(body) {
+  return (body || '').split('\n').map((line, i) => {
+    const trimmed = line.trim()
+    if (trimmed.startsWith('IMAGE:')) {
+      const src = trimmed.slice(6).trim()
+      return src ? <img key={i} className="blog-image" src={src} alt="" loading="lazy" /> : null
+    }
+    return <span key={i}>{line}<br /></span>
+  })
+}
+
 export default function BlogSite({ theme, onToggleTheme }) {
   const [route, setRoute] = useState(parseBlogRoute())
   const [brand, setBrand] = useState({ brand_tag: 'Engr. Mudi', logo_url: '' })
@@ -262,7 +276,7 @@ export default function BlogSite({ theme, onToggleTheme }) {
             <p><a className="back-link" href={threadUrl(thread)}>← {thread.title}</a></p>
             <h2>{post.title}</h2>
             {thread.subject && <p><span className="chip">{thread.subject}</span></p>}
-            <p className="blog-body">{post.body}</p>
+            <div className="blog-body">{renderBlogBody(post.body)}</div>
             {thread.buy_url && (
               <p className="buy-row">
                 <a className="btn" href={thread.buy_url} target="_blank" rel="noreferrer">
