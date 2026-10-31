@@ -46,6 +46,30 @@ a { color: #fbbf24; }
   color: #0b1220; background: #fbbf24; padding: 2px 12px; border-radius: 999px; font-weight: bold;
 }
 
+/* Header menu button + dropdown (all screens) */
+.nav-actions { display: flex; gap: 12px; align-items: center; }
+.nav-menu { position: relative; }
+.menu-button {
+  background: transparent; border: 1px solid #fbbf24; color: #fbbf24;
+  padding: 6px 14px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 14px; font-weight: bold;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.menu-button:hover { background: rgba(251, 191, 36, 0.12); }
+.menu-dropdown {
+  position: absolute; right: 0; top: calc(100% + 12px); z-index: 200;
+  min-width: 220px; padding: 8px; border-radius: 12px;
+  background: #111827; border: 1px solid #334155; box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+  display: flex; flex-direction: column;
+}
+.menu-dropdown a {
+  color: #cbd5e1; text-decoration: none; padding: 10px 12px; border-radius: 8px;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.menu-dropdown a:hover { background: #1e293b; color: #fff; }
+.page.light .menu-dropdown { background: #ffffff; border-color: #e2e8f0; }
+.page.light .menu-dropdown a { color: #334155; }
+.page.light .menu-dropdown a:hover { background: #fef3c7; color: #0f172a; }
+
 .hero { padding: 56px 0 24px; }
 .hero h1 { font-size: 52px; line-height: 1.1; margin: 0 0 8px; color: #fff; letter-spacing: -0.02em; font-weight: 700; }
 .hero-tagline { font-size: 24px; font-weight: 600; color: #fbbf24; margin: 0 0 12px; }

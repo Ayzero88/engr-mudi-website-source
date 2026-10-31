@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import AyzeroxaChat from './AyzeroxaChat'
-import { navIcon } from './NavIcons'
+import NavMenu from './NavMenu'
 
 
 // Icon for a social link label; unknown labels fall back to their text.
@@ -46,18 +46,20 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
             {hero.logo_url && <img className="logo" src={hero.logo_url} alt="AXAT logo" />}
             <span className="brand-name">Ayzeroxa Technologies</span>
           </a>
-          <nav className="nav">
-            <a href="#/" onClick={goHome}>{navIcon('Home')} Home</a>
-            <a href="#about">{navIcon('About')} About</a>
-            <a href="#software">{navIcon('Software')} Software</a>
-            <a href="#coaching">{navIcon('Coaching')} Coaching</a>
-            <a href="#books">{navIcon('Books')} Books</a>
-            <a href="#/blog">{navIcon('Blog')} Blog</a>
-            <a href="#hire">{navIcon('Hire us')} Hire us</a>
+          <div className="nav-actions">
             <button type="button" className="theme-toggle" onClick={onToggleTheme}>
               {theme === 'light' ? '🌙 Dark mode' : '☀️ Light mode'}
             </button>
-          </nav>
+            <NavMenu links={[
+              { href: '#/', label: 'Home', onClick: goHome },
+              { href: '#about', label: 'About' },
+              { href: '#software', label: 'Software' },
+              { href: '#coaching', label: 'Coaching' },
+              { href: '#books', label: 'Books' },
+              { href: '#/blog', label: 'Blog' },
+              { href: '#hire', label: 'Hire us' },
+            ]} />
+          </div>
         </div>
       </header>
 

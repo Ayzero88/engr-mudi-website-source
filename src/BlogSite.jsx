@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase, isSupabaseConfigured } from './supabaseClient'
 import AyzeroxaChat from './AyzeroxaChat'
-import { navIcon } from './NavIcons'
+import NavMenu from './NavMenu'
 import { seedData } from './seedData'
 
 // Hash routes (shareable links, post them anywhere):
@@ -169,17 +169,19 @@ export default function BlogSite({ theme, onToggleTheme }) {
             {brand.logo_url && <img className="logo" src={brand.logo_url} alt="AXAT logo" />}
             <span className="brand-name">Ayzeroxa Technologies</span>
           </a>
-          <nav className="nav">
-            <a href="#/" onClick={goHome}>{navIcon('Home')} Home</a>
-            <a href="#software">{navIcon('Software')} Software</a>
-            <a href="#coaching">{navIcon('Coaching')} Coaching</a>
-            <a href="#books">{navIcon('Books')} Books</a>
-            <a href="#/blog">{navIcon('Blog')} Blog</a>
-            <a href="#hire">{navIcon('Hire us')} Hire us</a>
+          <div className="nav-actions">
             <button type="button" className="theme-toggle" onClick={onToggleTheme}>
               {theme === 'light' ? '🌙 Dark mode' : '☀️ Light mode'}
             </button>
-          </nav>
+            <NavMenu links={[
+              { href: '#/', label: 'Home', onClick: goHome },
+              { href: '#software', label: 'Software' },
+              { href: '#coaching', label: 'Coaching' },
+              { href: '#books', label: 'Books' },
+              { href: '#/blog', label: 'Blog' },
+              { href: '#hire', label: 'Hire us' },
+            ]} />
+          </div>
         </div>
       </header>
 
