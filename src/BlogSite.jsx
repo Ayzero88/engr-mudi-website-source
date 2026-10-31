@@ -49,6 +49,11 @@ export default function BlogSite({ theme, onToggleTheme }) {
   const [paused, setPaused] = useState(false)
   const [readError, setReadError] = useState('')
   const readQueueRef = useRef([])
+  const chunkDurationsRef = useRef([])
+  const currentChunkRef = useRef(0)
+  const chunkStartRef = useRef(0)
+  const pausedElapsedRef = useRef(0)
+  const intentionalCancelRef = useRef(false)
   // Read-aloud for a blog post: uses the browser's built-in speech, no
   // server or recording. IMAGE: lines are skipped, so only the post text
   // is spoken. Reading stops when the reader leaves the post.
@@ -61,9 +66,35 @@ export default function BlogSite({ theme, onToggleTheme }) {
   }, [route.postSlug])
   function stopReading() {
     readQueueRef.current = []
+    chunkDurationsRef.current = []
+    currentChunkRef.current = 0
+    pausedElapsedRef.current = 0
     if ('speechSynthesis' in window) window.speechSynthesis.cancel()
     setReading(false)
     setPaused(false)
+  }
+  // Skip by seconds: the browser's speech gives no playback position, so
+  // each chunk's length is estimated from its word count at ~150 words
+  // per minute, and the jump lands on the chunk covering that time.
+  function skipReadAloud(seconds) {
+    if (!reading || readQueueRef.current.length === 0) return
+    const durations = chunkDurationsRef.current
+    const starts = []
+    let total = 0
+    durations.forEach((d) => { starts.push(total); total += d })
+    const elapsed = paused
+      ? pausedElapsedRef.current
+      : starts[currentChunkRef.current] + (Date.now() - chunkStartRef.current) / 1000
+    const target = Math.max(0, Math.min(total - 0.5, elapsed + seconds))
+    let index = starts.length - 1
+    for (let i = 0; i < starts.length; i++) {
+      if (target >= starts[i] && target < starts[i] + durations[i]) { index = i; break }
+    }
+    intentionalCancelRef.current = true
+    window.speechSynthesis.cancel()
+    setPaused(false)
+    pausedElapsedRef.current = 0
+    speakChunk(index)
   }
   function speakChunk(index) {
     const queue = readQueueRef.current
@@ -72,13 +103,19 @@ export default function BlogSite({ theme, onToggleTheme }) {
     const voice = voices.find((v) => v.lang && v.lang.toLowerCase().startsWith('en-gb'))
       || voices.find((v) => v.lang && v.lang.toLowerCase().startsWith('en'))
       || voices[0]
+    currentChunkRef.current = index
+    chunkStartRef.current = Date.now()
     const utterance = new SpeechSynthesisUtterance(queue[index])
     if (voice) { utterance.voice = voice; utterance.lang = voice.lang }
     else utterance.lang = 'en-GB'
     utterance.rate = 1
     utterance.volume = 1
     utterance.onend = () => { if (readQueueRef.current.length > 0) speakChunk(index + 1); else setReading(false) }
-    utterance.onerror = () => { stopReading(); setReadError('No voice is available in this browser on this device. Try another browser (Chrome or Edge) or check the laptop volume and output device.') }
+    utterance.onerror = (e) => {
+      if (intentionalCancelRef.current) { intentionalCancelRef.current = false; return }
+      if (e && e.error === 'canceled') return
+      stopReading(); setReadError('No voice is available in this browser on this device. Try another browser (Chrome or Edge) or check the laptop volume and output device.')
+    }
     window.speechSynthesis.speak(utterance)
   }
   function toggleReadAloud(post) {
@@ -86,8 +123,20 @@ export default function BlogSite({ theme, onToggleTheme }) {
     // Pause / resume in place: pausing keeps the current sentence and
     // the queue position, so Resume continues where it left off instead
     // of restarting the post from the beginning.
-    if (reading && paused) { window.speechSynthesis.resume(); setPaused(false); return }
-    if (reading) { window.speechSynthesis.pause(); setPaused(true); return }
+    if (reading && paused) {
+      const starts = []
+      let acc = 0
+      chunkDurationsRef.current.forEach((d) => { starts.push(acc); acc += d })
+      chunkStartRef.current = Date.now() - (pausedElapsedRef.current - starts[currentChunkRef.current]) * 1000
+      window.speechSynthesis.resume(); setPaused(false); return
+    }
+    if (reading) {
+      const starts = []
+      let acc = 0
+      chunkDurationsRef.current.forEach((d) => { starts.push(acc); acc += d })
+      pausedElapsedRef.current = starts[currentChunkRef.current] + (Date.now() - chunkStartRef.current) / 1000
+      window.speechSynthesis.pause(); setPaused(true); return
+    }
     setReadError('')
     setPaused(false)
     const text = (post.body || '').split('\n').filter((line) => !line.trim().startsWith('IMAGE:')).join(' ')
@@ -103,6 +152,9 @@ export default function BlogSite({ theme, onToggleTheme }) {
     })
     if (current) chunks.push(current.trim())
     readQueueRef.current = chunks
+    chunkDurationsRef.current = chunks.map((c) => Math.max(3, c.split(/\s+/).filter(Boolean).length / 2.5))
+    currentChunkRef.current = 0
+    pausedElapsedRef.current = 0
     window.speechSynthesis.cancel()
     setReading(true)
     speakChunk(0)
@@ -351,6 +403,8 @@ export default function BlogSite({ theme, onToggleTheme }) {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><path d="M12 19v3" /></svg>
                 {!reading ? 'Listen' : (paused ? 'Resume' : 'Pause')}
               </button>
+              <button type="button" className="btn secondary" disabled={!reading} onClick={() => skipReadAloud(-10)}>⏪ 10s</button>
+              <button type="button" className="btn secondary" disabled={!reading} onClick={() => skipReadAloud(10)}>10s ⏩</button>
             </p>
             {readError && <p className="read-error">{readError}</p>}
             <div className="blog-body">{renderBlogBody(post.body)}</div>
@@ -366,6 +420,8 @@ export default function BlogSite({ theme, onToggleTheme }) {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><path d="M12 19v3" /></svg>
                 {!reading ? 'Listen' : (paused ? 'Resume' : 'Pause')}
               </button>
+              <button type="button" className="btn secondary" disabled={!reading} onClick={() => skipReadAloud(-10)}>⏪ 10s</button>
+              <button type="button" className="btn secondary" disabled={!reading} onClick={() => skipReadAloud(10)}>10s ⏩</button>
               <button type="button" className="btn secondary" onClick={copyLink}>
                 {copied ? 'Link copied ✓' : 'Copy link'}
               </button>
