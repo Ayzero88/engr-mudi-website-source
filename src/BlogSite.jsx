@@ -45,6 +45,30 @@ export default function BlogSite({ theme, onToggleTheme }) {
   const [loadError, setLoadError] = useState('')
   const [copied, setCopied] = useState(false)
   const [showTop, setShowTop] = useState(false)
+  const [reading, setReading] = useState(false)
+  // Read-aloud for a blog post: uses the browser's built-in speech, no
+  // server or recording. IMAGE: lines are skipped, so only the post text
+  // is spoken. Reading stops when the reader leaves the post.
+  useEffect(() => {
+    return () => { if ('speechSynthesis' in window) window.speechSynthesis.cancel() }
+  }, [route.postSlug])
+  function toggleReadAloud(post) {
+    if (!('speechSynthesis' in window)) return
+    if (reading) {
+      window.speechSynthesis.cancel()
+      setReading(false)
+      return
+    }
+    const text = (post.body || '').split('\n').filter((line) => !line.trim().startsWith('IMAGE:')).join('\n')
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = 'en-GB'
+    utterance.rate = 1
+    utterance.onend = () => setReading(false)
+    utterance.onerror = () => setReading(false)
+    window.speechSynthesis.cancel()
+    window.speechSynthesis.speak(utterance)
+    setReading(true)
+  }
   // Chat content: live Supabase content when available, so the blog bot
   // updates with admin edits exactly like the main-site bot does.
   const [chatContent, setChatContent] = useState(seedData)
@@ -285,6 +309,10 @@ export default function BlogSite({ theme, onToggleTheme }) {
               </p>
             )}
             <p className="buy-row">
+              <button type="button" className="btn secondary read-btn" onClick={() => toggleReadAloud(post)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><path d="M12 19v3" /></svg>
+                {reading ? 'Stop reading' : 'Listen'}
+              </button>
               <button type="button" className="btn secondary" onClick={copyLink}>
                 {copied ? 'Link copied ✓' : 'Copy link'}
               </button>
