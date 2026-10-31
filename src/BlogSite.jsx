@@ -300,6 +300,12 @@ export default function BlogSite({ theme, onToggleTheme }) {
             <p><a className="back-link" href={threadUrl(thread)}>← {thread.title}</a></p>
             <h2>{post.title}</h2>
             {thread.subject && <p><span className="chip">{thread.subject}</span></p>}
+            <p className="buy-row">
+              <button type="button" className="btn secondary read-btn" onClick={() => toggleReadAloud(post)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><path d="M12 19v3" /></svg>
+                {reading ? 'Stop reading' : 'Listen'}
+              </button>
+            </p>
             <div className="blog-body">{renderBlogBody(post.body)}</div>
             {thread.buy_url && (
               <p className="buy-row">
