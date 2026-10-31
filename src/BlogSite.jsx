@@ -46,6 +46,7 @@ export default function BlogSite({ theme, onToggleTheme }) {
   const [copied, setCopied] = useState(false)
   const [showTop, setShowTop] = useState(false)
   const [reading, setReading] = useState(false)
+  const [paused, setPaused] = useState(false)
   const [readError, setReadError] = useState('')
   const readQueueRef = useRef([])
   // Read-aloud for a blog post: uses the browser's built-in speech, no
@@ -62,10 +63,11 @@ export default function BlogSite({ theme, onToggleTheme }) {
     readQueueRef.current = []
     if ('speechSynthesis' in window) window.speechSynthesis.cancel()
     setReading(false)
+    setPaused(false)
   }
   function speakChunk(index) {
     const queue = readQueueRef.current
-    if (index >= queue.length) { setReading(false); return }
+    if (index >= queue.length) { setReading(false); setPaused(false); return }
     const voices = window.speechSynthesis.getVoices()
     const voice = voices.find((v) => v.lang && v.lang.toLowerCase().startsWith('en-gb'))
       || voices.find((v) => v.lang && v.lang.toLowerCase().startsWith('en'))
@@ -75,14 +77,19 @@ export default function BlogSite({ theme, onToggleTheme }) {
     else utterance.lang = 'en-GB'
     utterance.rate = 1
     utterance.volume = 1
-    utterance.onend = () => speakChunk(index + 1)
+    utterance.onend = () => { if (readQueueRef.current.length > 0) speakChunk(index + 1); else setReading(false) }
     utterance.onerror = () => { stopReading(); setReadError('No voice is available in this browser on this device. Try another browser (Chrome or Edge) or check the laptop volume and output device.') }
     window.speechSynthesis.speak(utterance)
   }
   function toggleReadAloud(post) {
     if (!('speechSynthesis' in window)) { setReadError('Read-aloud is not supported in this browser. Try Chrome or Edge.'); return }
-    if (reading) { stopReading(); return }
+    // Pause / resume in place: pausing keeps the current sentence and
+    // the queue position, so Resume continues where it left off instead
+    // of restarting the post from the beginning.
+    if (reading && paused) { window.speechSynthesis.resume(); setPaused(false); return }
+    if (reading) { window.speechSynthesis.pause(); setPaused(true); return }
     setReadError('')
+    setPaused(false)
     const text = (post.body || '').split('\n').filter((line) => !line.trim().startsWith('IMAGE:')).join(' ')
     // Split into sentences, then group into chunks under ~180 characters.
     const sentences = text.match(/[^.!?]+[.!?]+["']?\s*/g) || [text]
@@ -102,7 +109,7 @@ export default function BlogSite({ theme, onToggleTheme }) {
     // If nothing actually starts speaking shortly after, the device has
     // no usable voice — say so instead of showing "Stop" in silence.
     setTimeout(() => {
-      if (readQueueRef.current.length > 0 && !window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
+      if (!window.speechSynthesis.paused && readQueueRef.current.length > 0 && !window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
         stopReading()
         setReadError('The browser started but produced no sound. Check the laptop volume, the sound output device, and that this browser tab is not muted — or try Chrome or Edge.')
       }
@@ -342,7 +349,7 @@ export default function BlogSite({ theme, onToggleTheme }) {
             <p className="buy-row">
               <button type="button" className="btn secondary read-btn" onClick={() => toggleReadAloud(post)}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><path d="M12 19v3" /></svg>
-                {reading ? 'Stop reading' : 'Listen'}
+                {!reading ? 'Listen' : (paused ? 'Resume' : 'Pause')}
               </button>
             </p>
             {readError && <p className="read-error">{readError}</p>}
@@ -357,7 +364,7 @@ export default function BlogSite({ theme, onToggleTheme }) {
             <p className="buy-row">
               <button type="button" className="btn secondary read-btn" onClick={() => toggleReadAloud(post)}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><path d="M12 19v3" /></svg>
-                {reading ? 'Stop reading' : 'Listen'}
+                {!reading ? 'Listen' : (paused ? 'Resume' : 'Pause')}
               </button>
               <button type="button" className="btn secondary" onClick={copyLink}>
                 {copied ? 'Link copied ✓' : 'Copy link'}
