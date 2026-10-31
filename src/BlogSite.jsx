@@ -312,7 +312,7 @@ export default function BlogSite({ theme, onToggleTheme }) {
         <p>© {new Date().getFullYear()} Ayzeroxa Technologies. All rights reserved.</p>
       </footer>
 
-      <a className="whatsapp-float" href="https://wa.me/2348134882178" target="_blank" rel="noreferrer">WhatsApp</a>
+      <a className="whatsapp-float" href="https://wa.me/2348075421099" target="_blank" rel="noreferrer">WhatsApp</a>
       {showTop && (
         <button type="button" className="to-top-float" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">↑</button>
       )}

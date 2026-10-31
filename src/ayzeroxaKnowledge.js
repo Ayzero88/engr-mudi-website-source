@@ -129,7 +129,7 @@ export function buildKnowledge(content) {
     keywords: ['contact', 'whatsapp', 'phone', 'number', 'email', 'follow', 'instagram', 'facebook', 'youtube', 'shorts', 'comedy', 'social'],
     answer: `You can reach Ayzeroxa on WhatsApp, YouTube, Instagram and Facebook — the links are below and in the Hire section. The dev comedy Shorts are on YouTube at Engr Mudi.`,
     links: [
-      { label: 'WhatsApp', href: 'https://wa.me/2348134882178' },
+      { label: 'WhatsApp', href: 'https://wa.me/2348075421099' },
       { label: 'YouTube — @EngrMudi', href: 'https://www.youtube.com/@EngrMudi' },
       { label: 'YouTube Shorts', href: 'https://www.youtube.com/@EngrMudi/shorts' },
       { label: 'Instagram — engr.mudi', href: 'https://www.instagram.com/engr.mudi' },

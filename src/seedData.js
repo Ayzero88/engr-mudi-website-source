@@ -72,7 +72,7 @@ export const seedData = {
     { id: 'seed-service-1', label: 'Coaching on how to use AI to build things.' },
   ],
   socialLinks: [
-    { id: 'seed-link-1', label: 'WhatsApp', url: 'https://wa.me/2348134882178' },
+    { id: 'seed-link-1', label: 'WhatsApp', url: 'https://wa.me/2348075421099' },
     { id: 'seed-link-2', label: 'YouTube', url: 'https://www.youtube.com/@EngrMudi' },
     { id: 'seed-link-3', label: 'Instagram', url: 'https://www.instagram.com/engr.mudi' },
     { id: 'seed-link-4', label: 'Facebook', url: 'https://www.facebook.com/AyoOsemudiamen' },
