@@ -149,8 +149,10 @@ export function buildKnowledge(content) {
   entries.push({
     id: 'blog',
     keywords: ['blog', 'article', 'articles', 'post', 'posts', 'topic', 'waec'],
-    answer: `The blog has separate subject threads with shareable links. The first planned thread is "Prepare for WAEC Mathematics in 30 Days". Open the blog from the navigation to see the topics that are live.`,
-    links: [],
+    answer: `Yes — the blog is live. The thread is "Preparation for Any Mathematics Examination", and the first post is "Epistle 1: Indices": what a power really means, a brief history and the people behind it, the proof, worked questions in exam format, and 2 problems for you to solve.`,
+    links: [
+      { label: 'Epistle 1: Indices', href: 'https://ayzeroxa.com.ng/#/blog/preparation-for-any-mathematics-examination/epistle-1-indices' },
+    ],
     nav: { label: 'Open the Blog', href: '#/blog' },
   })
 

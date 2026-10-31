@@ -566,7 +566,7 @@ export default function AdminPanel() {
         <h3>Topics</h3>
         {blogThreads.map((row, i) => (
           <div className="card-edit" key={row.id}>
-            <TextField label="Topic title (e.g. Prepare for WAEC Mathematics in 30 Days)" value={row.title} onChange={(v) => updateBlog('thread', row.id, { title: v })} />
+            <TextField label="Topic title (e.g. Preparation for Any Mathematics Examination)" value={row.title} onChange={(v) => updateBlog('thread', row.id, { title: v })} />
             <TextField label="Subject (e.g. Mathematics)" value={row.subject} onChange={(v) => updateBlog('thread', row.id, { subject: v })} />
             <TextField label="Description" textarea value={row.description} onChange={(v) => updateBlog('thread', row.id, { description: v })} />
             <TextField label="Buy button label (blank = “Buy the complete book”)" value={row.buy_label} onChange={(v) => updateBlog('thread', row.id, { buy_label: v })} />
