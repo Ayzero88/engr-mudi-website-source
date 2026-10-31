@@ -145,9 +145,26 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
               <a className="btn secondary" key={l.id} href={l.url} target="_blank" rel="noreferrer">{l.label}</a>
             ))}
           </p>
-          <p><strong>Direct:</strong> <a href="mailto:engr.mudi@ayzeroxa.com.ng">engr.mudi@ayzeroxa.com.ng</a></p>
-          <p><strong>General enquiries:</strong> <a href="mailto:info@ayzeroxa.com.ng">info@ayzeroxa.com.ng</a></p>
-          <p><strong>Support:</strong> <a href="mailto:support@ayzeroxa.com.ng">support@ayzeroxa.com.ng</a></p>
+          <div className="contact-cards">
+            <a className="contact-card" href="mailto:engr.mudi@ayzeroxa.com.ng">
+              <span className="contact-icon direct" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+              </span>
+              <span className="contact-text"><span className="contact-label">Direct</span><span className="contact-email">engr.mudi@ayzeroxa.com.ng</span></span>
+            </a>
+            <a className="contact-card" href="mailto:info@ayzeroxa.com.ng">
+              <span className="contact-icon general" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              </span>
+              <span className="contact-text"><span className="contact-label">General enquiries</span><span className="contact-email">info@ayzeroxa.com.ng</span></span>
+            </a>
+            <a className="contact-card" href="mailto:support@ayzeroxa.com.ng">
+              <span className="contact-icon support" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></svg>
+              </span>
+              <span className="contact-text"><span className="contact-label">Support</span><span className="contact-email">support@ayzeroxa.com.ng</span></span>
+            </a>
+          </div>
         </section>
       </main>
 

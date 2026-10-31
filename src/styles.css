@@ -167,6 +167,32 @@ a { color: #fbbf24; }
 .contact-title { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; color: #fff; margin: 32px 0 12px; }
 .page.light .contact-title { color: #0f172a; }
 
+/* Contact email cards: one card per mailbox, with a coloured icon */
+.contact-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; }
+.contact-card {
+  display: flex; align-items: center; gap: 14px; padding: 16px;
+  background: #111827; border: 1px solid #1e293b; border-radius: 14px;
+  text-decoration: none; transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.contact-card:hover { transform: translateY(-2px); border-color: #fbbf24; box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35); }
+.contact-icon {
+  flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
+  width: 48px; height: 48px; border-radius: 50%;
+}
+.contact-icon.direct { background: rgba(251, 191, 36, 0.16); color: #fbbf24; }
+.contact-icon.general { background: rgba(56, 189, 248, 0.16); color: #38bdf8; }
+.contact-icon.support { background: rgba(52, 211, 153, 0.16); color: #34d399; }
+.contact-text { display: flex; flex-direction: column; min-width: 0; }
+.contact-label { color: #fff; font-weight: 700; }
+.contact-email { color: #fbbf24; font-size: 14px; word-break: break-all; }
+.page.light .contact-card { background: #fff; border-color: #e2e8f0; }
+.page.light .contact-card:hover { border-color: #f59e0b; }
+.page.light .contact-label { color: #0f172a; }
+.page.light .contact-email { color: #b45309; }
+@media (max-width: 760px) {
+  .contact-cards { grid-template-columns: 1fr; }
+}
+
 /* Highlighted note box (e.g. current training batch) */
 .note-box { background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.45); color: #fde68a; padding: 14px 18px; border-radius: 12px; }
 .page.light .note-box { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
