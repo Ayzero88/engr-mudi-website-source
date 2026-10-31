@@ -506,7 +506,7 @@ export default function AdminPanel() {
         <TextField label="Coaching text" textarea value={data.coaching.body} onChange={(v) => setData((d) => ({ ...d, coaching: { ...d.coaching, body: v } }))} />
         <TextField label="Current training note (highlighted box — leave blank to hide it)" textarea value={data.coaching.note} onChange={(v) => setData((d) => ({ ...d, coaching: { ...d.coaching, note: v } }))} />
         <SaveButton className="btn" onSave={() => saveSingle('coaching', data.coaching)}>Save coaching text</SaveButton>
-        <h3>What I coach</h3>
+        <h3>What we coach</h3>
         {data.topics.map((row, i) => (
           <div className="row" key={row.id}>
             <input type="text" value={row.label} onChange={(e) => updateList('topics', row.id, { label: e.target.value })} />

@@ -107,7 +107,7 @@ export default function PublicSite({ content, theme, onToggleTheme }) {
         <section className="section" id="coaching">
           <h2>Coaching</h2>
           <p>{coaching.body}</p>
-          <h3>What I coach</h3>
+          <h3>What we coach</h3>
           <div className="stack">
             {coachingTopics.map((t) => (
               <span className="chip" key={t.id}>{t.label}</span>
