@@ -153,6 +153,8 @@ export default function AdminPanel() {
   const [projectId, setProjectId] = useState('') // selected project in the Projects navigator
   const [photoId, setPhotoId] = useState('') // selected photo in the Coaching photos navigator
   const [bookId, setBookId] = useState('') // selected book in the Books navigator
+  const [pageViewId, setPageViewId] = useState('') // selected page in the Views by page navigator
+  const [dayViewId, setDayViewId] = useState('') // selected day in the Views by day navigator
   const [aboutError, setAboutError] = useState('')
   const [siteViews, setSiteViews] = useState(null)
   const [siteViewsError, setSiteViewsError] = useState('')
@@ -774,19 +776,33 @@ export default function AdminPanel() {
                 <div className="metric-card"><div className="metric-num">{todayViews}</div><div>Views today</div></div>
               </div>
               <h3>Views by page</h3>
-              {pageRows.length === 0 ? <p className="hint">No page views yet — they start counting once the updated site is live.</p> : pageRows.map(([page, count]) => (
-                <div className="bar-row" key={page}>
-                  <span>{page} — {count} views</span>
-                  <div className="bar-track"><span className="bar-fill" style={{ width: `${Math.round((count / maxPage) * 100)}%` }} /></div>
-                </div>
-              ))}
+              {pageRows.length === 0 ? <p className="hint">No page views yet — they start counting once the updated site is live.</p> : (() => {
+                const pageItems = pageRows.map(([page, count]) => ({ id: page, title: page, count }))
+                const { row } = activeItem(pageItems, pageViewId)
+                return (
+                  <>
+                    <ListNavigator items={pageItems} selectedId={pageViewId} onSelect={setPageViewId} />
+                    <div className="bar-row" key={row.id}>
+                      <span>{row.title} — {row.count} views</span>
+                      <div className="bar-track"><span className="bar-fill" style={{ width: `${Math.round((row.count / maxPage) * 100)}%` }} /></div>
+                    </div>
+                  </>
+                )
+              })()}
               <h3>Views by day (last 30 days)</h3>
-              {dayRows.length === 0 ? <p className="hint">No page views yet.</p> : dayRows.map(([day, count]) => (
-                <div className="bar-row" key={day}>
-                  <span>{day} — {count} views</span>
-                  <div className="bar-track"><span className="bar-fill" style={{ width: `${Math.round((count / maxDay) * 100)}%` }} /></div>
-                </div>
-              ))}
+              {dayRows.length === 0 ? <p className="hint">No page views yet.</p> : (() => {
+                const dayItems = dayRows.map(([day, count]) => ({ id: day, title: day, count }))
+                const { row } = activeItem(dayItems, dayViewId)
+                return (
+                  <>
+                    <ListNavigator items={dayItems} selectedId={dayViewId} onSelect={setDayViewId} />
+                    <div className="bar-row" key={row.id}>
+                      <span>{row.title} — {row.count} views</span>
+                      <div className="bar-track"><span className="bar-fill" style={{ width: `${Math.round((row.count / maxDay) * 100)}%` }} /></div>
+                    </div>
+                  </>
+                )
+              })()}
             </>
           )
         })()}
