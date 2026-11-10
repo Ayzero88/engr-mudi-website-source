@@ -275,7 +275,7 @@ a { color: #fbbf24; }
 .post-list { line-height: 2; }
 .post-list a { font-size: 17px; }
 
-/* Blog post navigator (admin panel, dark only) — one post at a time, arrows + chips */
+/* List navigator (admin panel, dark only) — one item at a time, arrows + chips; shared by Blog posts, Blog topics, Projects, Coaching photos and Books */
 .post-nav { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
 .post-nav-arrow { padding: 6px 14px; font-size: 20px; line-height: 1; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; cursor: pointer; }
 .post-nav-arrow:disabled { opacity: 0.4; cursor: default; }

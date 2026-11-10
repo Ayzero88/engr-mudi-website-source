@@ -97,6 +97,39 @@ function SaveButton({ onSave, className, children }) {
   )
 }
 
+// Horizontal step-through for a list of edit cards: ‹ arrows + numbered
+// chips + "N of M". Shows one item at a time so a long list stays compact.
+// `items` is the visible list, `selectedId` the current item's id,
+// `onSelect(id)` switches it. Chip labels come from `labelOf(item, index)`;
+// the default is the item's position number (1, 2, 3 …).
+function ListNavigator({ items, selectedId, onSelect, labelOf }) {
+  if (!items || items.length === 0) return <p className="hint">Nothing here yet — add one below.</p>
+  const found = items.findIndex((r) => r.id === selectedId)
+  const active = found === -1 ? 0 : found
+  const goTo = (i) => onSelect(items[Math.max(0, Math.min(items.length - 1, i))].id)
+  return (
+    <div className="post-nav">
+      <button className="post-nav-arrow" onClick={() => goTo(active - 1)} disabled={active === 0} aria-label="Previous">‹</button>
+      <div className="post-chips">
+        {items.map((r, i) => (
+          <button key={r.id} className={`post-chip${i === active ? ' active' : ''}`} title={r.title || r.label || '(untitled)'} onClick={() => goTo(i)}>{labelOf ? labelOf(r, i) : i + 1}</button>
+        ))}
+      </div>
+      <button className="post-nav-arrow" onClick={() => goTo(active + 1)} disabled={active === items.length - 1} aria-label="Next">›</button>
+      <span className="hint post-nav-count">{active + 1} of {items.length}</span>
+    </div>
+  )
+}
+
+// The item a ListNavigator is currently showing (falls back to the first
+// item when the selected id is gone, e.g. after a delete or a filter change).
+function activeItem(items, selectedId) {
+  if (!items || items.length === 0) return { row: null, index: 0 }
+  const found = items.findIndex((r) => r.id === selectedId)
+  const index = found === -1 ? 0 : found
+  return { row: items[index], index }
+}
+
 // ---------- admin panel ----------
 
 export default function AdminPanel() {
@@ -116,6 +149,10 @@ export default function AdminPanel() {
   const [blogError, setBlogError] = useState('')
   const [blogThreadFilter, setBlogThreadFilter] = useState('')
   const [blogPostId, setBlogPostId] = useState('') // selected post in the horizontal post navigator
+  const [blogTopicId, setBlogTopicId] = useState('') // selected topic in the Topics navigator
+  const [projectId, setProjectId] = useState('') // selected project in the Projects navigator
+  const [photoId, setPhotoId] = useState('') // selected photo in the Coaching photos navigator
+  const [bookId, setBookId] = useState('') // selected book in the Books navigator
   const [aboutError, setAboutError] = useState('')
   const [siteViews, setSiteViews] = useState(null)
   const [siteViewsError, setSiteViewsError] = useState('')
@@ -272,7 +309,9 @@ export default function AdminPanel() {
   }
 
   function addBlogThread() {
-    setBlogThreads((rows) => [...rows, { id: `new-${Date.now()}`, position: rows.length + 1, title: '', subject: '', slug: '', description: '', buy_label: '', buy_url: '' }])
+    const newId = `new-${Date.now()}`
+    setBlogThreads((rows) => [...rows, { id: newId, position: rows.length + 1, title: '', subject: '', slug: '', description: '', buy_label: '', buy_url: '' }])
+    setBlogTopicId(newId) // jump the navigator to the new topic
   }
 
   function addBlogPost() {
@@ -342,6 +381,7 @@ export default function AdminPanel() {
   function addRow(listKey, blank) {
     const row = { id: `new-${Date.now()}`, position: data[listKey].length + 1, ...blank }
     setData((d) => ({ ...d, [listKey]: [...d[listKey], row] }))
+    return row.id // so the caller can jump its navigator to the new row
   }
 
   if (!isSupabaseConfigured) {
@@ -474,33 +514,40 @@ export default function AdminPanel() {
       {/* Projects */}
       <section className="panel-section">
         <h2>Projects</h2>
-        {data.projects.map((row, i) => (
-          <div className="card-edit" key={row.id}>
-            {/* Save at the top too, so a long project card never hides it
+        {(() => {
+          const { row, index: i } = activeItem(data.projects, projectId)
+          if (!row) return <p className="hint">No projects yet — add one below.</p>
+          return (
+            <>
+              <ListNavigator items={data.projects} selectedId={projectId} onSelect={setProjectId} />
+              <div className="card-edit" key={row.id}>
+                {/* Save at the top too, so a long project card never hides it
                 below the Screenshot field. Same save as the bottom button. */}
-            <div className="row">
-              <SaveButton onSave={() => saveRow('projects', row)}>Save</SaveButton>
-              <span className="hint">{row.title || '(new project)'}</span>
-            </div>
-            <TextField label="Title" value={row.title} onChange={(v) => updateList('projects', row.id, { title: v })} />
-            <TextField label="Tagline (optional)" value={row.tagline} onChange={(v) => updateList('projects', row.id, { tagline: v })} />
-            <TextField label="Description" textarea value={row.description} onChange={(v) => updateList('projects', row.id, { description: v })} />
-            <label className="field"><span>Status</span>
-              <select value={row.status} onChange={(e) => updateList('projects', row.id, { status: e.target.value })}>
-                <option value="LIVE">LIVE</option>
-                <option value="Coming Soon">Coming Soon</option>
-              </select>
-            </label>
-            <ImageField label="Screenshot" value={row.image_url} onChange={(v) => updateList('projects', row.id, { image_url: v })} />
-            <div className="row">
-              <SaveButton onSave={() => saveRow('projects', row)}>Save</SaveButton>
-              <button onClick={() => reorder('projects', 'projects', i, -1)}>↑</button>
-              <button onClick={() => reorder('projects', 'projects', i, 1)}>↓</button>
-              <button onClick={() => deleteRow('projects', row.id, 'projects')}>Delete</button>
-            </div>
-          </div>
-        ))}
-        <button className="btn secondary" onClick={() => addRow('projects', { title: '', description: '', tagline: '', status: 'Coming Soon', image_url: '/assets/weighing-coming-soon.svg' })}>+ Add project</button>
+                <div className="row">
+                  <SaveButton onSave={() => saveRow('projects', row)}>Save</SaveButton>
+                  <span className="hint">{row.title || '(new project)'}</span>
+                </div>
+                <TextField label="Title" value={row.title} onChange={(v) => updateList('projects', row.id, { title: v })} />
+                <TextField label="Tagline (optional)" value={row.tagline} onChange={(v) => updateList('projects', row.id, { tagline: v })} />
+                <TextField label="Description" textarea value={row.description} onChange={(v) => updateList('projects', row.id, { description: v })} />
+                <label className="field"><span>Status</span>
+                  <select value={row.status} onChange={(e) => updateList('projects', row.id, { status: e.target.value })}>
+                    <option value="LIVE">LIVE</option>
+                    <option value="Coming Soon">Coming Soon</option>
+                  </select>
+                </label>
+                <ImageField label="Screenshot" value={row.image_url} onChange={(v) => updateList('projects', row.id, { image_url: v })} />
+                <div className="row">
+                  <SaveButton onSave={() => saveRow('projects', row)}>Save</SaveButton>
+                  <button onClick={() => reorder('projects', 'projects', i, -1)}>↑</button>
+                  <button onClick={() => reorder('projects', 'projects', i, 1)}>↓</button>
+                  <button onClick={() => deleteRow('projects', row.id, 'projects')}>Delete</button>
+                </div>
+              </div>
+            </>
+          )
+        })()}
+        <button className="btn secondary" onClick={() => setProjectId(addRow('projects', { title: '', description: '', tagline: '', status: 'Coming Soon', image_url: '/assets/weighing-coming-soon.svg' }))}>+ Add project</button>
       </section>
 
       {/* Coaching */}
@@ -521,44 +568,58 @@ export default function AdminPanel() {
         ))}
         <button className="btn secondary" onClick={() => addRow('topics', { label: '' })}>+ Add topic</button>
         <h3>Photos</h3>
-        {data.photos.map((row, i) => (
-          <div className="card-edit" key={row.id}>
-            <ImageField label="Photo" value={row.image_url} onChange={(v) => updateList('photos', row.id, { image_url: v })} />
-            <TextField label="Caption" value={row.caption} onChange={(v) => updateList('photos', row.id, { caption: v })} />
-            <div className="row">
-              <SaveButton onSave={() => saveRow('coaching_photos', row)}>Save</SaveButton>
-              <button onClick={() => reorder('coaching_photos', 'photos', i, -1)}>↑</button>
-              <button onClick={() => reorder('coaching_photos', 'photos', i, 1)}>↓</button>
-              <button onClick={() => deleteRow('coaching_photos', row.id, 'photos')}>Delete</button>
-            </div>
-          </div>
-        ))}
-        <button className="btn secondary" onClick={() => addRow('photos', { image_url: '', caption: '' })}>+ Add photo</button>
+        {(() => {
+          const { row, index: i } = activeItem(data.photos, photoId)
+          if (!row) return <p className="hint">No photos yet — add one below.</p>
+          return (
+            <>
+              <ListNavigator items={data.photos} selectedId={photoId} onSelect={setPhotoId} />
+              <div className="card-edit" key={row.id}>
+                <ImageField label="Photo" value={row.image_url} onChange={(v) => updateList('photos', row.id, { image_url: v })} />
+                <TextField label="Caption" value={row.caption} onChange={(v) => updateList('photos', row.id, { caption: v })} />
+                <div className="row">
+                  <SaveButton onSave={() => saveRow('coaching_photos', row)}>Save</SaveButton>
+                  <button onClick={() => reorder('coaching_photos', 'photos', i, -1)}>↑</button>
+                  <button onClick={() => reorder('coaching_photos', 'photos', i, 1)}>↓</button>
+                  <button onClick={() => deleteRow('coaching_photos', row.id, 'photos')}>Delete</button>
+                </div>
+              </div>
+            </>
+          )
+        })()}
+        <button className="btn secondary" onClick={() => setPhotoId(addRow('photos', { image_url: '', caption: '' }))}>+ Add photo</button>
       </section>
 
       {/* Books */}
       <section className="panel-section">
         <h2>Books</h2>
-        {data.books.map((row, i) => (
-          <div className="card-edit" key={row.id}>
-            <TextField label="Title" value={row.title} onChange={(v) => updateList('books', row.id, { title: v })} />
-            <TextField label="Description" textarea value={row.description} onChange={(v) => updateList('books', row.id, { description: v })} />
-            <TextField label="Price label (e.g. ₦2,500)" value={row.price_label} onChange={(v) => updateList('books', row.id, { price_label: v })} />
-            <TextField label="Buy on Selar URL (blank = no button)" value={row.selar_url} onChange={(v) => updateList('books', row.id, { selar_url: v })} />
-            <TextField label="Buy on Paystack URL (blank = no button)" value={row.paystack_url} onChange={(v) => updateList('books', row.id, { paystack_url: v })} />
-            <label className="field"><span>
-              <input type="checkbox" checked={!!row.coming_soon} onChange={(e) => updateList('books', row.id, { coming_soon: e.target.checked })} />
-              {' '}Coming soon (no buy buttons)
-            </span></label>
-            <div className="row">
-              <SaveButton onSave={() => saveRow('books', row)}>Save</SaveButton>
-              <button onClick={() => reorder('books', 'books', i, -1)}>↑</button>
-              <button onClick={() => reorder('books', 'books', i, 1)}>↓</button>
-              <button onClick={() => deleteRow('books', row.id, 'books')}>Delete</button>
-            </div>
-          </div>
-        ))}
-        <button className="btn secondary" onClick={() => addRow('books', { title: '', description: '', price_label: '', selar_url: '', paystack_url: '', coming_soon: false })}>+ Add book</button>
+        {(() => {
+          const { row, index: i } = activeItem(data.books, bookId)
+          if (!row) return <p className="hint">No books yet — add one below.</p>
+          return (
+            <>
+              <ListNavigator items={data.books} selectedId={bookId} onSelect={setBookId} />
+              <div className="card-edit" key={row.id}>
+                <TextField label="Title" value={row.title} onChange={(v) => updateList('books', row.id, { title: v })} />
+                <TextField label="Description" textarea value={row.description} onChange={(v) => updateList('books', row.id, { description: v })} />
+                <TextField label="Price label (e.g. ₦2,500)" value={row.price_label} onChange={(v) => updateList('books', row.id, { price_label: v })} />
+                <TextField label="Buy on Selar URL (blank = no button)" value={row.selar_url} onChange={(v) => updateList('books', row.id, { selar_url: v })} />
+                <TextField label="Buy on Paystack URL (blank = no button)" value={row.paystack_url} onChange={(v) => updateList('books', row.id, { paystack_url: v })} />
+                <label className="field"><span>
+                  <input type="checkbox" checked={!!row.coming_soon} onChange={(e) => updateList('books', row.id, { coming_soon: e.target.checked })} />
+                  {' '}Coming soon (no buy buttons)
+                </span></label>
+                <div className="row">
+                  <SaveButton onSave={() => saveRow('books', row)}>Save</SaveButton>
+                  <button onClick={() => reorder('books', 'books', i, -1)}>↑</button>
+                  <button onClick={() => reorder('books', 'books', i, 1)}>↓</button>
+                  <button onClick={() => deleteRow('books', row.id, 'books')}>Delete</button>
+                </div>
+              </div>
+            </>
+          )
+        })()}
+        <button className="btn secondary" onClick={() => setBookId(addRow('books', { title: '', description: '', price_label: '', selar_url: '', paystack_url: '', coming_soon: false }))}>+ Add book</button>
       </section>
 
       {/* Blog */}
@@ -567,22 +628,29 @@ export default function AdminPanel() {
         {blogError && <p className="error">Blog could not load: {blogError}</p>}
         <p className="hint">Topics group posts — one topic per book or subject. Posts are pasted here as plain text and line breaks are kept. Nothing shows on the public blog until you add it here.</p>
         <h3>Topics</h3>
-        {blogThreads.map((row, i) => (
-          <div className="card-edit" key={row.id}>
-            <TextField label="Topic title (e.g. Preparation for Any Mathematics Examination)" value={row.title} onChange={(v) => updateBlog('thread', row.id, { title: v })} />
-            <TextField label="Subject (e.g. Mathematics)" value={row.subject} onChange={(v) => updateBlog('thread', row.id, { subject: v })} />
-            <TextField label="Description" textarea value={row.description} onChange={(v) => updateBlog('thread', row.id, { description: v })} />
-            <TextField label="Buy button label (blank = “Buy the complete book”)" value={row.buy_label} onChange={(v) => updateBlog('thread', row.id, { buy_label: v })} />
-            <TextField label="Buy URL — Selar or Paystack link (blank = no button)" value={row.buy_url} onChange={(v) => updateBlog('thread', row.id, { buy_url: v })} />
-            <TextField label="Slug — web address part (blank = filled from the title when you save)" value={row.slug} onChange={(v) => updateBlog('thread', row.id, { slug: v })} />
-            <div className="row">
-              <SaveButton onSave={() => saveBlogRow('blog_threads', row, 'thread')}>Save</SaveButton>
-              <button onClick={() => moveBlogThread(i, -1)}>↑</button>
-              <button onClick={() => moveBlogThread(i, 1)}>↓</button>
-              <button onClick={() => deleteBlogThread(row.id)}>Delete</button>
-            </div>
-          </div>
-        ))}
+        {(() => {
+          const { row, index: i } = activeItem(blogThreads, blogTopicId)
+          if (!row) return <p className="hint">No topics yet — add one below.</p>
+          return (
+            <>
+              <ListNavigator items={blogThreads} selectedId={blogTopicId} onSelect={setBlogTopicId} />
+              <div className="card-edit" key={row.id}>
+                <TextField label="Topic title (e.g. Preparation for Any Mathematics Examination)" value={row.title} onChange={(v) => updateBlog('thread', row.id, { title: v })} />
+                <TextField label="Subject (e.g. Mathematics)" value={row.subject} onChange={(v) => updateBlog('thread', row.id, { subject: v })} />
+                <TextField label="Description" textarea value={row.description} onChange={(v) => updateBlog('thread', row.id, { description: v })} />
+                <TextField label="Buy button label (blank = “Buy the complete book”)" value={row.buy_label} onChange={(v) => updateBlog('thread', row.id, { buy_label: v })} />
+                <TextField label="Buy URL — Selar or Paystack link (blank = no button)" value={row.buy_url} onChange={(v) => updateBlog('thread', row.id, { buy_url: v })} />
+                <TextField label="Slug — web address part (blank = filled from the title when you save)" value={row.slug} onChange={(v) => updateBlog('thread', row.id, { slug: v })} />
+                <div className="row">
+                  <SaveButton onSave={() => saveBlogRow('blog_threads', row, 'thread')}>Save</SaveButton>
+                  <button onClick={() => moveBlogThread(i, -1)}>↑</button>
+                  <button onClick={() => moveBlogThread(i, 1)}>↓</button>
+                  <button onClick={() => deleteBlogThread(row.id)}>Delete</button>
+                </div>
+              </div>
+            </>
+          )
+        })()}
         <button className="btn secondary" onClick={addBlogThread}>+ Add topic</button>
 
         <h3>Posts</h3>
@@ -596,23 +664,11 @@ export default function AdminPanel() {
         </label>
         {(() => {
           const visiblePosts = blogThreadFilter ? blogPosts.filter((p) => p.thread_id === blogThreadFilter) : blogPosts
-          if (visiblePosts.length === 0) return <p className="hint">No posts yet — add one below.</p>
-          const foundIndex = visiblePosts.findIndex((p) => p.id === blogPostId)
-          const activeIndex = foundIndex === -1 ? 0 : foundIndex
-          const row = visiblePosts[activeIndex]
-          const goTo = (i) => setBlogPostId(visiblePosts[Math.max(0, Math.min(visiblePosts.length - 1, i))].id)
+          const { row } = activeItem(visiblePosts, blogPostId)
+          if (!row) return <p className="hint">No posts yet — add one below.</p>
           return (
             <>
-              <div className="post-nav">
-                <button className="post-nav-arrow" onClick={() => goTo(activeIndex - 1)} disabled={activeIndex === 0} aria-label="Previous post">‹</button>
-                <div className="post-chips">
-                  {visiblePosts.map((p, i) => (
-                    <button key={p.id} className={`post-chip${i === activeIndex ? ' active' : ''}`} title={p.title || '(untitled)'} onClick={() => goTo(i)}>{p.day_order || i + 1}</button>
-                  ))}
-                </div>
-                <button className="post-nav-arrow" onClick={() => goTo(activeIndex + 1)} disabled={activeIndex === visiblePosts.length - 1} aria-label="Next post">›</button>
-                <span className="hint post-nav-count">{activeIndex + 1} of {visiblePosts.length}</span>
-              </div>
+              <ListNavigator items={visiblePosts} selectedId={blogPostId} onSelect={setBlogPostId} labelOf={(p, i) => p.day_order || i + 1} />
               <div className="card-edit" key={row.id}>
                 <label className="field"><span>Topic</span>
                   <select value={row.thread_id} onChange={(e) => updateBlog('post', row.id, { thread_id: e.target.value })}>
