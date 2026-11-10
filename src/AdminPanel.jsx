@@ -115,6 +115,7 @@ export default function AdminPanel() {
   const [blogPosts, setBlogPosts] = useState([])
   const [blogError, setBlogError] = useState('')
   const [blogThreadFilter, setBlogThreadFilter] = useState('')
+  const [blogPostId, setBlogPostId] = useState('') // selected post in the horizontal post navigator
   const [aboutError, setAboutError] = useState('')
   const [siteViews, setSiteViews] = useState(null)
   const [siteViewsError, setSiteViewsError] = useState('')
@@ -279,7 +280,9 @@ export default function AdminPanel() {
     if (!threadId) { alert('Add a topic first, then add posts to it.'); return }
     const inThread = blogPosts.filter((p) => p.thread_id === threadId)
     const dayOrder = inThread.reduce((m, p) => Math.max(m, p.day_order || 0), 0) + 1
-    setBlogPosts((rows) => [...rows, { id: `new-${Date.now()}`, thread_id: threadId, title: '', slug: '', body: '', day_order: dayOrder, published: true }])
+    const newId = `new-${Date.now()}`
+    setBlogPosts((rows) => [...rows, { id: newId, thread_id: threadId, title: '', slug: '', body: '', day_order: dayOrder, published: true }])
+    setBlogPostId(newId) // jump the navigator to the new post
   }
 
   function flash(message) {
@@ -591,32 +594,52 @@ export default function AdminPanel() {
             ))}
           </select>
         </label>
-        {(blogThreadFilter ? blogPosts.filter((p) => p.thread_id === blogThreadFilter) : blogPosts).map((row) => (
-          <div className="card-edit" key={row.id}>
-            <label className="field"><span>Topic</span>
-              <select value={row.thread_id} onChange={(e) => updateBlog('post', row.id, { thread_id: e.target.value })}>
-                {blogThreads.map((t) => (
-                  <option key={t.id} value={t.id}>{t.title || '(untitled topic)'}</option>
-                ))}
-              </select>
-            </label>
-            <TextField label="Post title (e.g. Day 1: Indices and Logarithms)" value={row.title} onChange={(v) => updateBlog('post', row.id, { title: v })} />
-            <TextField label="Slug (blank = filled from the title when you save)" value={row.slug} onChange={(v) => updateBlog('post', row.id, { slug: v })} />
-            <label className="field"><span>Day / order number</span>
-              <input type="number" value={row.day_order} onChange={(e) => updateBlog('post', row.id, { day_order: parseInt(e.target.value, 10) || 0 })} />
-            </label>
-            <TextField label="Body — paste the full post text here" textarea rows={12} value={row.body} onChange={(v) => updateBlog('post', row.id, { body: v })} />
-            <label className="field"><span>
-              <input type="checkbox" checked={!!row.published} onChange={(e) => updateBlog('post', row.id, { published: e.target.checked })} />
-              {' '}Published (uncheck to hide from the public blog)
-            </span></label>
-            <div className="row">
-              <SaveButton onSave={() => saveBlogRow('blog_posts', row, 'post')}>Save</SaveButton>
-              <button onClick={() => deleteBlogPost(row.id)}>Delete</button>
-              <span className="hint">{row.views || 0} views</span>
-            </div>
-          </div>
-        ))}
+        {(() => {
+          const visiblePosts = blogThreadFilter ? blogPosts.filter((p) => p.thread_id === blogThreadFilter) : blogPosts
+          if (visiblePosts.length === 0) return <p className="hint">No posts yet — add one below.</p>
+          const foundIndex = visiblePosts.findIndex((p) => p.id === blogPostId)
+          const activeIndex = foundIndex === -1 ? 0 : foundIndex
+          const row = visiblePosts[activeIndex]
+          const goTo = (i) => setBlogPostId(visiblePosts[Math.max(0, Math.min(visiblePosts.length - 1, i))].id)
+          return (
+            <>
+              <div className="post-nav">
+                <button className="post-nav-arrow" onClick={() => goTo(activeIndex - 1)} disabled={activeIndex === 0} aria-label="Previous post">‹</button>
+                <div className="post-chips">
+                  {visiblePosts.map((p, i) => (
+                    <button key={p.id} className={`post-chip${i === activeIndex ? ' active' : ''}`} title={p.title || '(untitled)'} onClick={() => goTo(i)}>{p.day_order || i + 1}</button>
+                  ))}
+                </div>
+                <button className="post-nav-arrow" onClick={() => goTo(activeIndex + 1)} disabled={activeIndex === visiblePosts.length - 1} aria-label="Next post">›</button>
+                <span className="hint post-nav-count">{activeIndex + 1} of {visiblePosts.length}</span>
+              </div>
+              <div className="card-edit" key={row.id}>
+                <label className="field"><span>Topic</span>
+                  <select value={row.thread_id} onChange={(e) => updateBlog('post', row.id, { thread_id: e.target.value })}>
+                    {blogThreads.map((t) => (
+                      <option key={t.id} value={t.id}>{t.title || '(untitled topic)'}</option>
+                    ))}
+                  </select>
+                </label>
+                <TextField label="Post title (e.g. Day 1: Indices and Logarithms)" value={row.title} onChange={(v) => updateBlog('post', row.id, { title: v })} />
+                <TextField label="Slug (blank = filled from the title when you save)" value={row.slug} onChange={(v) => updateBlog('post', row.id, { slug: v })} />
+                <label className="field"><span>Day / order number</span>
+                  <input type="number" value={row.day_order} onChange={(e) => updateBlog('post', row.id, { day_order: parseInt(e.target.value, 10) || 0 })} />
+                </label>
+                <TextField label="Body — paste the full post text here" textarea rows={12} value={row.body} onChange={(v) => updateBlog('post', row.id, { body: v })} />
+                <label className="field"><span>
+                  <input type="checkbox" checked={!!row.published} onChange={(e) => updateBlog('post', row.id, { published: e.target.checked })} />
+                  {' '}Published (uncheck to hide from the public blog)
+                </span></label>
+                <div className="row">
+                  <SaveButton onSave={() => saveBlogRow('blog_posts', row, 'post')}>Save</SaveButton>
+                  <button onClick={() => deleteBlogPost(row.id)}>Delete</button>
+                  <span className="hint">{row.views || 0} views</span>
+                </div>
+              </div>
+            </>
+          )
+        })()}
         <button className="btn secondary" onClick={addBlogPost}>+ Add post</button>
 
         <h3>Metrics</h3>

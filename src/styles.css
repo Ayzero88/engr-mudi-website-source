@@ -275,6 +275,15 @@ a { color: #fbbf24; }
 .post-list { line-height: 2; }
 .post-list a { font-size: 17px; }
 
+/* Blog post navigator (admin panel, dark only) — one post at a time, arrows + chips */
+.post-nav { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+.post-nav-arrow { padding: 6px 14px; font-size: 20px; line-height: 1; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; cursor: pointer; }
+.post-nav-arrow:disabled { opacity: 0.4; cursor: default; }
+.post-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.post-chip { min-width: 34px; padding: 6px 10px; border-radius: 999px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; cursor: pointer; font-size: 14px; }
+.post-chip.active { border-color: #fbbf24; color: #fbbf24; font-weight: bold; }
+.post-nav-count { white-space: nowrap; }
+
 /* Blog metrics (admin panel, dark only) */
 .metric-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
 .metric-card { background: #0b1220; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; color: #94a3b8; }
